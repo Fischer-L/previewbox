@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<style>
+		a {
+			position : absolute;
+			background-color: #6DB4ED;
+			padding: 8px;
+		}
+		.x0 {
+			left : 10%;
+		}
+		.x1 {
+			left : 40%;
+		}
+		.x2 {
+			right : 15%;
+		}
+		.y0 {
+			top : 15%;
+		}
+		.y1 {
+			top : 50%;
+		}
+		.y2 {
+			bottom : 15%;
+		}
+	</style>
+</head>
+<body>
+	<a class="x0 y0 previewbox-anchor" href="http://en.wikipedia.org/wiki/Main_Page">Welcome to Wikipedia</a>
+	<a class="x0 y1 previewbox-anchor" href="//edition.cnn.com/SHOWBIZ/">CNN Entertainment</a>
+	<a class="x0 y2" href="//www.reddit.com/">reddit</a>
+	<a class="x1 y0" href="https://nyse.nyx.com/">New Tour Stock Exchange</a>
+	<a class="x1 y1" href="//www.imdb.com/">IMDb</a>
+	<a class="x1 y2" href="http://www.html5rocks.com/en/">HTML5 Rocks</a>
+	<a class="x2 y0" href="//www.weather.com/">National and Local Weather</a>
+	<a class="x2 y1 previewbox-anchor" href="http://techcrunch.com/2013/10/05/the-potential-and-pitfalls-of-twitters-mobile-business/">The Potential And Pitfalls Of Twitter’s Mobile Business</a>
+	<a class="x2 y2" href="http://css-tricks.com/blurry-transparent-header-effect-ios7-css/">Blurry Transparent Header Effect from iOS7 in CSS</a>
+	<script src="previewbox.js"></script>
+	<script>
+		// Here are some little quick and dirty tests:
+		var dbg = {
+				isAnchor : function (a) {
+					if (a
+						&& typeof a == "object"
+						&& a.nodeType === 1
+						&& a.tagName === "A"
+						&& typeof a.anchorType == "number"
+						&& a.anchorType >= 0
+					) {
+						return true;
+					}
+					return false;
+				},
+				testSetSandbox : function (v) {
+					return (previewbox.setSandbox(v) === v);
+				},
+				testRemoveSandbox : function () {
+					previewbox.rmSandbox();
+					return (document.querySelector("#previewbox-iframe").getAttribute("sandbox") === null);
+				},
+				testChangeStyles : function (newStyles) {
+					var pass = false,
+						currentStys = previewbox.changeStyles(newStyles);
+					if (currentStys) {
+						for (var p in newStyles) {
+							if (newStyles.hasOwnProperty(p)) {
+								if (currentStys[p] === newStyles[p]) {
+									pass = true;
+								} else {
+									pass = false;
+									break;
+								}
+							}
+						}
+					}
+					return pass;
+				},
+				testRegisAnchor : function (a) {
+					return this.isAnchor(previewbox.regisAnchor(a));
+				},
+				testRegisBySearching : function () {
+					var pass = false,
+						acs = previewbox.regisBySearching();
+					if (acs) {
+						pass = (acs.length == 4
+								&& this.isAnchor(acs[0])
+								&& this.isAnchor(acs[2]));								
+					}
+					return pass;
+				}
+			},
+			newStyles = {
+				iframeW : 300,
+				iframeH : 400,
+				boxBorderColor : "#555",
+				loadingImg : "url(./loading.gif)"
+			};
+		if (!dbg.testSetSandbox("allow-same-origin allow-scripts allow-forms")) {
+			console.log("Fail on the testSetSandbox");
+		}
+		if (!dbg.testRemoveSandbox()) {
+			console.log("Fail on the testRemoveSandbox");
+		}
+		if (!dbg.testChangeStyles(newStyles)) {
+			console.log("Fail on the testChangeStyles");
+		}
+		if (!dbg.testRegisAnchor(document.querySelectorAll("a")[8])) {
+			console.log("Fail on the testRegisAnchor");
+		}
+		if (!dbg.testRegisBySearching()) {
+			console.log("Fail on the testRegisBySearching");
+		}
+		
+		// Set up the demo
+		for (var i = 0, as = document.querySelectorAll("a"); i < as.length; i++) {
+			previewbox.regisAnchor(as[i]);
+		}
+		previewbox.changeStyles({
+			iframeW : 999999,
+			iframeH : 999999
+		});
+		previewbox.setSandbox("allow-scripts");
+	</script>
+</body>
+</html>
