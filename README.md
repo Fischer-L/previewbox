@@ -99,7 +99,7 @@ Currently can change
   Please use previewbox.setSandbox and previewbox.rmSandbox to config the sandbox.
   If the browser does not support the HTML5 sandbox, it would have no sandbox security effect, however, the preview feature would still exists.
 
-- Watch out the preview content you are looking at. Please make sure the link is clean and safe. This is one of the basic and the most effective way to load outside contents.
+- Watch out the preview content you are looking at. Please make sure the link is clean and safe. This is one of the basic and the most effective way to load outside contents securely.
 
 
 ## Remark
