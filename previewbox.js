@@ -132,12 +132,17 @@ var previewbox = (function () {
 				@ The mouse is not on the previewbox or the anchor <a> element: true
 		*/
 		var _isMouseOut = function (leaveFor, anchor) {
-			return !(leaveFor === _previewbox
-					|| leaveFor === _previewbox.h5
-					|| leaveFor === _previewbox.carpet
-					|| leaveFor === _previewbox.iframe
-					|| leaveFor === _previewbox.pointer
-					|| (typeof anchor == "object" && leaveFor === anchor));
+			var maxDepth = 3,
+				depth = arguments[2] || 0,
+				isOut = !(leaveFor === _previewbox || (typeof anchor == "object" && leaveFor === anchor));	
+			if (depth < maxDepth && isOut) {
+				depth++;
+				leaveFor = leaveFor.parentNode;
+				if (leaveFor) {
+					return _isMouseOut(leaveFor, anchor, depth)
+				}
+			}
+			return isOut;
 		}
 		/*	Arg:
 				> href = the href to check
