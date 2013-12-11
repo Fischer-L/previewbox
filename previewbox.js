@@ -132,14 +132,17 @@ var previewbox = (function () {
 				@ The mouse is not on the previewbox or the anchor <a> element: true
 		*/
 		var _isMouseOut = function (leaveFor, anchor) {
-			var maxDepth = 3,
-				depth = arguments[2] || 0,
+			var isOut = true,
+			    maxDepth = 3,
+				depth = arguments[2] || 0;
+			if (leaveFor) {
 				isOut = !(leaveFor === _previewbox || (typeof anchor == "object" && leaveFor === anchor));	
-			if (depth < maxDepth && isOut) {
-				depth++;
-				leaveFor = leaveFor.parentNode;
-				if (leaveFor) {
-					return _isMouseOut(leaveFor, anchor, depth)
+				if (depth < maxDepth && isOut) {
+					depth++;
+					leaveFor = leaveFor.parentNode;
+					if (leaveFor) {
+						return _isMouseOut(leaveFor, anchor, depth)
+					}
 				}
 			}
 			return isOut;
