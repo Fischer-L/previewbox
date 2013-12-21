@@ -82,14 +82,7 @@ Then the a#CGG would be registered like the a#FOO and the a#BAR.
 == Change the style ==
 
 Call previewbox.changeStyles to alter the style of the preview box.
-Currently can change
-- iframeW : number, the width(in px) of the iframe for the preview page. Cannot be over the client window width * 0.45 and below the client window width * 0.45 * 0.6
-
-- iframeH : number, the height(in px) of the iframe for the preview page. Cannot be over the client window height * 0.7 and below the client window height * 0.7 * 0.6
-
-- boxBorderColor : CSS color value, the color the preview box's border
-
-- loadingImg : the image to display in the backgournd center of the preview box while loading, refer to CSS background-image for the correct value
+The styles of the preview box is calculated so that it appears in the right shape. If understand the source codes, please modify as your wish or please use the changeStyles method to alter the styles.
 
 
 ## Security
@@ -100,9 +93,5 @@ Currently can change
   If the browser does not support the HTML5 sandbox, it would have no sandbox security effect, however, the preview feature would still exists.
 
 - Watch out the preview content you are looking at. Please make sure the link is clean and safe. This is one of the basic and the most effective way to load outside contents securely.
-
-
-## Remark
-- The styles of the preview box is calculated so that it appears in the right shape. If understand the source codes, please modify as your wish or please use the changeStyles method to alter the styles.
 
 
