@@ -45,7 +45,6 @@ var previewbox = (function () {
 			iframeMinW : 1024 * 0.45 * 0.6,
 			iframeMinH : 768 * 0.7 * 0.6,
 			boxBorderW : 4,
-			boxPaddingW : 4,
 			box2PtrPadding : 15, // The min space between the preview box's pointer and the preview box top/bottom
 			ptrBorderTopW : 5,
 			ptrBorderLeftW : 16,
@@ -56,6 +55,8 @@ var previewbox = (function () {
 			iframeW : 0, // The #previewbox-iframe width
 			iframeH : 0, // The #previewbox-iframe height
 			boxBorderColor : "#333", // The border color of the preview box(affecting #previewbox, #previewbox-pointer and #previewbox > h5)
+			boxPadding : 14, // The padding of the preview box(affecting #previewbox)
+			boxShadow : "", // The preview box's box-shadow
 			loadingImg : "" // The backgournd image used when loading
 		};
 		/*	Properties:
@@ -77,7 +78,7 @@ var previewbox = (function () {
 		var _previewbox = null;
 		/*	Return:
 				@ Is IE: <NUM> the version of IE
-				@ Not IE: null
+				@ Not IE: NaN
 		*/
 		var _getIEVersion = function () {
 			var rv = -1; // Return value assumes failure.
@@ -87,7 +88,7 @@ var previewbox = (function () {
 			  if (re.exec(ua) != null)
 				 rv = +(RegExp.$1);
 			}
-			return (rv === -1) ? null : rv;
+			return (rv === -1) ? NaN : rv;
 		}
 		/*	Arg: 
 				> e = the event object
@@ -133,10 +134,11 @@ var previewbox = (function () {
 		*/
 		var _isMouseOut = function (leaveFor, anchor) {
 			var isOut = true,
-			    maxDepth = 3,
+				maxDepth = 3,
 				depth = arguments[2] || 0;
+				
 			if (leaveFor) {
-				isOut = !(leaveFor === _previewbox || (typeof anchor == "object" && leaveFor === anchor));	
+				isOut = !(leaveFor === _previewbox || (typeof anchor == "object" && leaveFor === anchor));
 				if (depth < maxDepth && isOut) {
 					depth++;
 					leaveFor = leaveFor.parentNode;
@@ -145,6 +147,7 @@ var previewbox = (function () {
 					}
 				}
 			}
+			
 			return isOut;
 		}
 		/*	Arg:
@@ -183,14 +186,14 @@ var previewbox = (function () {
 			}
 		}
 		/*	Return: {
-				windowWidth : the total width of the preview box in px.
-				windowHeight : the height of the preview box in px.
+				width : the total width of the preview box in px.
+				height : the height of the preview box in px.
 			}
 		*/
 		var _getPreviewBoxWH = function () {
 			return {
-				width : _settings.iframeW + _CONST.boxBorderW * 2 + _CONST.boxPaddingW * 2,
-				height : _settings.iframeH + _CONST.boxBorderW * 2 + _CONST.boxPaddingW * 2
+				width : _settings.iframeW + _CONST.boxBorderW * 2 + _settings.boxPadding * 2,
+				height : _settings.iframeH + _CONST.boxBorderW * 2 + _settings.boxPadding * 2
 			};
 		}
 		/*	Arg:
@@ -199,9 +202,13 @@ var previewbox = (function () {
 		*/
 		var _setStyle = function (mousePosX, mousePosY) {
 			var bTop,
-				pTop,
 				bSize = _getPreviewBoxWH();
 			
+			var pTop,
+				pWidth = 2 * _CONST.ptrBorderLeftW,
+				pHozPos = -(2 * _CONST.ptrBorderLeftW + _CONST.boxBorderW - 1),
+				pTopMin = _CONST.box2PtrPadding - _CONST.boxBorderW - _settings.boxPadding;
+				
 			_previewbox.style.borderColor = _previewbox.pointer.style.borderColor = _previewbox.h5.style.color = _settings.boxBorderColor;
 			_previewbox.style.backgroundImage = _settings.loadingImg;
 			
@@ -213,37 +220,46 @@ var previewbox = (function () {
 			}			
 			_previewbox.style.top = bTop + "px";
 			
-			pTop = mousePosY - bTop - _CONST.boxBorderW - _CONST.boxPaddingW + _CONST.ptrBorderTopW;
-			if (pTop < _CONST.box2PtrPadding - _CONST.boxBorderW - _CONST.boxPaddingW) {
+			pTop = mousePosY - bTop - _CONST.boxBorderW - _settings.boxPadding + _CONST.ptrBorderTopW;
+			if (pTop < pTopMin) {
 			// The preview box pointer's top value is less than the min limit
-				pTop = _CONST.box2PtrPadding;
-			} else if (pTop > bSize.height - _CONST.box2PtrPadding - _CONST.boxBorderW - _CONST.boxPaddingW) {
+				pTop = _CONST.box2PtrPadding;				
+			} else if (pTop > bSize.height - pTopMin) {
 			// The preview box pointer's top value is more than the max limit
-				pTop = bSize.height - _CONST.box2PtrPadding;
+				pTop = bSize.height - _CONST.box2PtrPadding;				
 			}
 			_previewbox.pointer.style.top = pTop + "px";
 			
 			if (mousePosX < _CONST.windowWidth / 2) {
 			// The mouse is at the left half side of the window
-				_previewbox.style.left = (mousePosX + 25) + "px";
+				_previewbox.style.left = (mousePosX + pWidth - 4) + "px";
+				_previewbox.pointer.style.left = pHozPos + "px";
+				_previewbox.pointer.style.right = "";
 				_previewbox.pointer.style.borderTopColor = "transparent";
 				_previewbox.pointer.style.borderBottomColor = "transparent";
 				_previewbox.pointer.style.borderLeftColor = "transparent";
-				_previewbox.pointer.style.left = -(2 * _CONST.ptrBorderLeftW + _CONST.boxBorderW - 1) + "px";
-				_previewbox.pointer.style.right = "";
 				
 			} else {
 			// The mouse is at the right half side of the window
-				_previewbox.style.left = (mousePosX - _settings.iframeW -25) + "px";
+				_previewbox.style.left = (mousePosX - bSize.width - pWidth - 4) + "px";
+				_previewbox.pointer.style.left = "";
+				_previewbox.pointer.style.right = pHozPos + "px";
 				_previewbox.pointer.style.borderTopColor = "transparent";
 				_previewbox.pointer.style.borderBottomColor = "transparent";
 				_previewbox.pointer.style.borderRightColor = "transparent";
-				_previewbox.pointer.style.left = "";
-				_previewbox.pointer.style.right = -(2 * _CONST.ptrBorderLeftW + _CONST.boxBorderW - 1) + "px";
 			}
 			
-			_previewbox.carpet.style.width = (_settings.iframeW + 2 * _CONST.boxPaddingW + 2 * _CONST.boxBorderW + 4 * _CONST.ptrBorderLeftW) + "px";
-			_previewbox.carpet.style.height = (_settings.iframeH + 2 * _CONST.boxPaddingW + 2 * _CONST.boxBorderW + 4 * _CONST.ptrBorderLeftW) + "px";
+			_previewbox.carpet.style.width = (bSize.width + pWidth) + "px";
+			_previewbox.carpet.style.height = (bSize.height + pWidth) + "px";
+			
+			if (_settings.boxShadow) {
+				_previewbox.style.oBoxShadow = _settings.boxShadow;
+				_previewbox.style.msBoxShadow = _settings.boxShadow;
+				_previewbox.style.mozBoxShadow = _settings.boxShadow;
+				_previewbox.style.webkitBoxShadow = _settings.boxShadow;
+				_previewbox.style.boxShadow = _settings.boxShadow;
+			}
+				
 		}		
 		/*	Arg:
 				> herf = the href to the preview content
@@ -274,7 +290,7 @@ var previewbox = (function () {
 			div.id = _CONST.boxID;
 			div.style.display = "none";
 			div.style.border = _CONST.boxBorderW + 'px solid ' + _settings.boxBorderColor;
-			div.style.padding = _CONST.boxPaddingW + "px";
+			div.style.padding = _settings.boxPadding + "px";
 			div.style.backgroundColor = "#fff";
 			div.style.backgroundImage = _settings.loadingImg;
 			div.style.backgroundPosition = "center center";
@@ -285,10 +301,10 @@ var previewbox = (function () {
 			div.style.zIndex = 9999999999999;
 			div.innerHTML = '<div id="previewbox-carpet" style="position:absolute;'
 							+									'z-index:1;'
-							+									'top:' + -(2 * _CONST.ptrBorderLeftW) + "px;"/*- (the total width border of the #previewbox-pointer)*/
-							+									'left:' + -(2 * _CONST.ptrBorderLeftW) + "px;"/*- (the total width border of the #previewbox-pointer)*/
-																/* width: the total width of the box + 2 * the total width of the #previewbox-pointer;
-							                                       height: the total height of the box + 2 * the total width of the #previewbox-pointer;
+							+									'top:' + -(_CONST.ptrBorderLeftW) + "px;"/*- (0.5 * the total border width of the #previewbox-pointer)*/
+							+									'left:' + -(_CONST.ptrBorderLeftW) + "px;"/*- (0.5 * the total border width of the #previewbox-pointer)*/
+																/* width: the total width of the box + the total width of the #previewbox-pointer;
+							                                       height: the total height of the box + the total width of the #previewbox-pointer;
 																*/
 							+'">'
 							+'</div>'
@@ -478,11 +494,13 @@ var previewbox = (function () {
 				_previewbox.iframe.removeAttribute("sandbox");
 			},
 			/*	Arg:
-					> styles = {
+					> styles = { // The setable styles
 						iframeW : number, the width(in px) of the iframe for the preview page. Cannot be over the client window width * 0.45 and below the client window width * 0.45 * 0.6
 						iframeH : number, the height(in px) of the iframe for the preview page. Cannot be over the client window height * 0.7 and below the client window height * 0.7 * 0.6
 						boxBorderColor : CSS color value, the color the preview box's border
+						boxPadding : the number in px, the preview box's padding
 						loadingImg : the image to display in the backgournd center of the preview box while loading, refer to CSS background-image for the correct value
+						boxShadow : the preview box's shadow, refer to the CSS box-shadow value. If the broswer doesn't support, then no effect appears.
 					}
 				Return:
 					@ NG: null
@@ -526,9 +544,19 @@ var previewbox = (function () {
 						newStyles.boxBorderColor = _settings.boxBorderColor = styles.boxBorderColor;
 					}
 					
+					if (typeof styles.boxPadding == "number" && styles.boxPadding > 0) {
+						newStyles = (newStyles instanceof Object) ? newStyles : {};
+						newStyles.boxPadding = _settings.boxPadding = styles.boxPadding;
+					}
+					
 					if(typeof styles.loadingImg == "string" && styles.loadingImg) {
 						newStyles = (newStyles instanceof Object) ? newStyles : {};
 						newStyles.loadingImg = _settings.loadingImg = styles.loadingImg;
+					}
+					
+					if(typeof styles.boxShadow == "string" && styles.boxShadow) {
+						newStyles = (newStyles instanceof Object) ? newStyles : {};
+						newStyles.boxShadow = _settings.boxShadow = styles.boxShadow;
 					}
 				}
 				return newStyles;
