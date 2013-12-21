@@ -79,7 +79,7 @@ After calling, the preview box searchs and registers all the HTML a elements wit
 Then the a#CGG would be registered like the a#FOO and the a#BAR.
 
 
-== Change the style ==
+## Change the style
 
 Call previewbox.changeStyles to alter the style of the preview box.
 The styles of the preview box is calculated so that it appears in the right shape. If understand the source codes, please modify as your wish or please use the changeStyles method to alter the styles.
