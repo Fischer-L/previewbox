@@ -1,4 +1,16 @@
 ------------------------------------------------------
+# Version: 0.0003beta
+
+# Date: 2013.12.21
+
+# Note:
+	> Update the for the styles
+
+# Tetsed on: Refer to 0.0002beta
+
+# Future improvements in consideration: Refer to 0.0002beta
+
+------------------------------------------------------
 # Version: 0.0002beta
 
 # Date: 2013.10.10
