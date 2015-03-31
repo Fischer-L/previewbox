@@ -2,8 +2,13 @@
 <html>
 <head>
 	<meta charset="utf-8">
+	<link rel="stylesheet" media="all" href="lib/mocha.css">
 	<style>
-		a {
+		#anchorsHolder {
+			width : 100%;
+			display : none;
+		}
+		#anchorsHolder a {
 			position : absolute;
 			background-color: #6DB4ED;
 			padding: 8px;
@@ -29,17 +34,56 @@
 	</style>
 </head>
 <body>
-	<a class="x0 y0 previewbox-anchor" href="http://en.wikipedia.org/wiki/Main_Page">Welcome to Wikipedia</a>
-	<a class="x0 y1 previewbox-anchor" href="//edition.cnn.com/SHOWBIZ/">CNN Entertainment</a>
-	<a class="x0 y2" href="//www.reddit.com/">reddit</a>
-	<a class="x1 y0" href="https://nyse.nyx.com/">New Tour Stock Exchange</a>
-	<a class="x1 y1" href="//www.imdb.com/">IMDb</a>
-	<a class="x1 y2" href="http://www.html5rocks.com/en/">HTML5 Rocks</a>
-	<a class="x2 y0" href="//www.weather.com/">National and Local Weather</a>
-	<a class="x2 y1 previewbox-anchor" href="http://techcrunch.com/2013/10/05/the-potential-and-pitfalls-of-twitters-mobile-business/">The Potential And Pitfalls Of Twitter’s Mobile Business</a>
-	<a class="x2 y2" href="http://css-tricks.com/blurry-transparent-header-effect-ios7-css/">Blurry Transparent Header Effect from iOS7 in CSS</a>
+
+	<div id="mocha"></div>
+	
+	<div id="anchorsHolder">
+		<a class="test x0 y0 previewbox-anchor" href="http://en.wikipedia.org/wiki/Main_Page">Welcome to Wikipedia</a>
+		<a class="test x0 y1 previewbox-anchor" href="//edition.cnn.com/SHOWBIZ/">CNN Entertainment</a>
+		<a class="test x0 y2" href="//www.reddit.com/">reddit</a>
+		<a class="test x1 y0" href="https://nyse.nyx.com/">New Tour Stock Exchange</a>
+		<a class="test x1 y1" href="//www.imdb.com/">IMDb</a>
+		<a class="test x1 y2" href="http://www.html5rocks.com/en/">HTML5 Rocks</a>
+		<a class="test x2 y0" href="//www.weather.com/">National and Local Weather</a>
+		<a class="test x2 y1 previewbox-anchor" href="http://techcrunch.com/2013/10/05/the-potential-and-pitfalls-of-twitters-mobile-business/">The Potential And Pitfalls Of Twitter’s Mobile Business</a>
+		<a class="test x2 y2" href="http://css-tricks.com/blurry-transparent-header-effect-ios7-css/">Blurry Transparent Header Effect from iOS7 in CSS</a>
+	</div>
+	
 	<script src="previewbox.js"></script>
+	<script src="lib/mocha.js"></script>
+	<script src="lib/proclaim.js"></script>
+	<script>			
+		var mochaTest = {
+			
+			flag_run_mocha_tests : false,
+			
+			flag_state_pass : "passed",
+			
+			flag_isPass : true,
+			
+			suite : [],
+			
+			isPass : function () {
+			
+				
+				return this.flag_isPass;
+			}
+		};
+	</script>
 	<script>
+		/**
+         * Mocha tests
+		 */		 
+		
+		if (mochaTest.flag_run_mocha_tests) {
+		
+			mocha.setup("bdd");
+			
+			var assert = proclaim;
+			
+			mocha.run();
+		}
+		
 		// Here are some little quick and dirty tests:
 		var dbg = {
 				isAnchor : function (a) {
@@ -113,16 +157,28 @@
 		if (!dbg.testRegisBySearching()) {
 			console.log("Fail on the testRegisBySearching");
 		}
+	</script>
+	<script>
+		/**
+		 * Set up the demo
+		 */		
 		
-		// Set up the demo
-		for (var i = 0, as = document.querySelectorAll("a"); i < as.length; i++) {
-			previewbox.regisAnchor(as[i]);
+		if (mochaTest.isPass()) {
+			
+			document.querySelector("#mocha").style.display = "none";
+			document.querySelector("#anchorsHolder").style.display = "block";
+			
+			for (var i = 0, as = document.querySelectorAll("#anchorsHolder a"); i < as.length; i++) {
+				previewbox.regisAnchor(as[i]);
+			}
+			
+			previewbox.changeStyles({
+				iframeW : 999999,
+				iframeH : 999999
+			});
+			
+			previewbox.setSandbox("allow-scripts");	
 		}
-		previewbox.changeStyles({
-			iframeW : 999999,
-			iframeH : 999999
-		});
-		previewbox.setSandbox("allow-scripts");
 	</script>
 </body>
 </html>
