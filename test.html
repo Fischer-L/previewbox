@@ -55,20 +55,69 @@
 	<script>			
 		var mochaTest = {
 			
-			flag_run_mocha_tests : false,
-			
-			flag_state_pass : "passed",
-			
-			flag_isPass : true,
-			
-			suite : [],
-			
-			isPass : function () {
-			
+				flag_run_mocha_tests : 1,
 				
-				return this.flag_isPass;
-			}
-		};
+				flag_state_pass : "passed",
+				
+				flag_isPass : true,
+				
+				suites : [],
+				
+				isPass : function () {
+					
+					var i;
+					
+					if (arguments.length == 0) {
+						
+						for (i = this.suites.length - 1; i >= 0; i--) {	
+						
+							if (!this.isPass(this.suites[i])) break;						
+						}
+					
+					} else {
+					
+						var suite = arguments[0]; // The real Mocha test suite
+						
+						if (suite.tests.length > 0) {
+							
+							for (i = suite.tests.length - 1; i >= 0; i--) {
+															
+								if (suite.tests[i].state !== this.flag_state_pass) return (this.flag_isPass = false);
+							}
+						}
+						
+						if (suite.suites.length > 0) {
+							
+							for (i = suite.suites.length - 1; i >= 0; i--) {
+															
+								if (!this.isPass(suite.suites[i])) return this.flag_isPass;
+							}						
+						}
+					}
+					
+					return this.flag_isPass;
+				}
+			},
+			
+			setupDemo = function (mochaErr) {
+		
+				if (!mochaErr && mochaTest.isPass()) {
+					
+					document.querySelector("#mocha").style.display = "none";
+					document.querySelector("#anchorsHolder").style.display = "block";
+					
+					for (var i = 0, as = document.querySelectorAll("#anchorsHolder a"); i < as.length; i++) {
+						previewbox.regisAnchor(as[i]);
+					}
+					
+					previewbox.changeStyles({
+						iframeW : 999999,
+						iframeH : 999999
+					});
+					
+					previewbox.setSandbox("allow-scripts");	
+				}				
+			};
 	</script>
 	<script>
 		/**
@@ -79,105 +128,124 @@
 		
 			mocha.setup("bdd");
 			
-			var assert = proclaim;
+			var assert = proclaim,
 			
-			mocha.run();
-		}
-		
-		// Here are some little quick and dirty tests:
-		var dbg = {
-				isAnchor : function (a) {
-					if (a
-						&& typeof a == "object"
-						&& a.nodeType === 1
-						&& a.tagName === "A"
-						&& typeof a.anchorType == "number"
-						&& a.anchorType >= 0
-					) {
-						return true;
+				assertAnchorRegistered = function (a) {	
+					
+					var expNodeType = 1,
+						
+						expAnchorType = 0;
+						
+					assert.notEqual(a, null, "assertAnchorRegistered but null");
+					
+					assert.isObject(a, "assertAnchorRegistered but not object");
+					
+					assert.strictEqual(a.nodeType, expNodeType, formaStr("assertAnchorRegistered but nodeType (actual , expected) = ({0}, {1})", a.nodeType, expNodeType));
+					
+					assert.greaterThanOrEqual(a.anchorType, 0, formaStr("assertAnchorRegistered but anchorType (actual < expected) => ({0} < {1})", a.anchorType, expAnchorType));
+				},
+				
+				formaStr = function () { // From : http://jsfiddle.net/joquery/9KYaQ/
+				
+					// The string containing the format items (e.g. "{0}")
+					// will and always has to be the first argument.
+					var theString = arguments[0];
+					
+					// start with the second argument (i = 1)
+					for (var i = 1; i < arguments.length; i++) {
+						// "gm" = RegEx options for Global search (more than one instance)
+						// and for Multiline search
+						var regEx = new RegExp("\\{" + (i - 1) + "\\}", "gm");
+						theString = theString.replace(regEx, arguments[i]);
 					}
-					return false;
-				},
-				testSetSandbox : function (v) {
-					return (previewbox.setSandbox(v) === v);
-				},
-				testRemoveSandbox : function () {
-					previewbox.rmSandbox();
-					return (document.querySelector("#previewbox-iframe").getAttribute("sandbox") === null);
-				},
-				testChangeStyles : function (newStyles) {
-					var pass = false,
-						currentStys = previewbox.changeStyles(newStyles);
-					if (currentStys) {
+					
+					return theString;
+				};
+			
+			mochaTest.suites.push(describe("previewbox", function () {
+			
+				describe("#setSandbox", function () {
+					
+					it("should set sandbox", function () {
+						
+						var v = "allow-same-origin allow-scripts allow-forms";
+						
+						assert.strictEqual(previewbox.setSandbox(v), v);						
+					});					
+				});				
+			
+				describe("#rmSandbox", function () {
+					
+					it("should remove sandbox", function () {
+						
+						previewbox.rmSandbox();
+						
+						assert.strictEqual(document.querySelector("#previewbox-iframe").getAttribute("sandbox"), null);
+					});					
+				});
+							
+				describe("#changeStyles", function () {
+					
+					it("should change styles", function () {
+						
+						var newStyles = {
+								iframeW : 300,
+								iframeH : 400,
+								boxBorderColor : "#555",
+								loadingImg : "url(./loading.gif)"
+							},
+							currentStys = previewbox.changeStyles(newStyles);
+							
+						assert.notEqual(currentStys, null, "The current style is null");
+						
+						assert.isObject(currentStys, "The returned style is not obj");
+						
 						for (var p in newStyles) {
-							if (newStyles.hasOwnProperty(p)) {
-								if (currentStys[p] === newStyles[p]) {
-									pass = true;
-								} else {
-									pass = false;
-									break;
-								}
+						
+							if (newStyles.hasOwnProperty(p)) {								
+								assert.strictEqual(currentStys[p], newStyles[p], formaStr("The {0} style (actual, expected) = ({1}, {2})", p, currentStys[p], newStyles[p]));
 							}
+						}						
+					});					
+				});
+							
+				describe("#regisAnchor", function () {
+					
+					it("should register anchor", function () {
+						
+						var a = document.querySelectorAll("#anchorsHolder a");
+						
+						assertAnchorRegistered(previewbox.regisAnchor(a[a.length - 1]));
+					});
+				});
+							
+				describe("#regisBySearching", function () {
+					
+					it("should register anchors thru searching", function () {
+						
+						var expLength = 4,
+						
+							acs = previewbox.regisBySearching();
+						
+						assert.notEqual(acs, null, "No anchor regsiterd");
+						
+						assert.isObject(acs, "The returned value is not obj");
+						
+						assert.equal(acs.length, expLength, formaStr("The number of anchors registered (actual, expected) = ({0}, {1})", acs.length, expLength));
+						
+						for (var i = acs.length - 1; i >= 0; i--) {
+							assertAnchorRegistered(acs[i]);
 						}
-					}
-					return pass;
-				},
-				testRegisAnchor : function (a) {
-					return this.isAnchor(previewbox.regisAnchor(a));
-				},
-				testRegisBySearching : function () {
-					var pass = false,
-						acs = previewbox.regisBySearching();
-					if (acs) {
-						pass = (acs.length == 4
-								&& this.isAnchor(acs[0])
-								&& this.isAnchor(acs[2]));								
-					}
-					return pass;
-				}
-			},
-			newStyles = {
-				iframeW : 300,
-				iframeH : 400,
-				boxBorderColor : "#555",
-				loadingImg : "url(./loading.gif)"
-			};
-		if (!dbg.testSetSandbox("allow-same-origin allow-scripts allow-forms")) {
-			console.log("Fail on the testSetSandbox");
-		}
-		if (!dbg.testRemoveSandbox()) {
-			console.log("Fail on the testRemoveSandbox");
-		}
-		if (!dbg.testChangeStyles(newStyles)) {
-			console.log("Fail on the testChangeStyles");
-		}
-		if (!dbg.testRegisAnchor(document.querySelectorAll("a")[8])) {
-			console.log("Fail on the testRegisAnchor");
-		}
-		if (!dbg.testRegisBySearching()) {
-			console.log("Fail on the testRegisBySearching");
-		}
-	</script>
-	<script>
-		/**
-		 * Set up the demo
-		 */		
+					});
+				});
+								
+			}));			
+			
+			mocha.run(setupDemo);
+			
+		} else {
 		
-		if (mochaTest.isPass()) {
-			
-			document.querySelector("#mocha").style.display = "none";
-			document.querySelector("#anchorsHolder").style.display = "block";
-			
-			for (var i = 0, as = document.querySelectorAll("#anchorsHolder a"); i < as.length; i++) {
-				previewbox.regisAnchor(as[i]);
-			}
-			
-			previewbox.changeStyles({
-				iframeW : 999999,
-				iframeH : 999999
-			});
-			
-			previewbox.setSandbox("allow-scripts");	
+			setupDemo();
 		}
 	</script>
 </body>
