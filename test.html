@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link rel="stylesheet" media="all" href="lib/mocha.css">
+	<style>
+		#anchorsHolder {
+			width : 100%;
+			display : none;
+		}
+		#anchorsHolder a {
+			position : absolute;
+			background-color: #6DB4ED;
+			padding: 8px;
+		}
+		.x0 {
+			left : 10%;
+		}
+		.x1 {
+			left : 40%;
+		}
+		.x2 {
+			right : 15%;
+		}
+		.y0 {
+			top : 15%;
+		}
+		.y1 {
+			top : 50%;
+		}
+		.y2 {
+			bottom : 15%;
+		}
+	</style>
+</head>
+<body>
+
+	<div id="mocha"></div>
+	
+	<div id="anchorsHolder">
+		<a class="test x0 y0 previewbox-anchor" href="http://en.wikipedia.org/wiki/Main_Page">Welcome to Wikipedia</a>
+		<a class="test x0 y1 previewbox-anchor" href="//edition.cnn.com/SHOWBIZ/">CNN Entertainment</a>
+		<a class="test x0 y2" href="//www.reddit.com/">reddit</a>
+		<a class="test x1 y0" href="https://nyse.nyx.com/">New Tour Stock Exchange</a>
+		<a class="test x1 y1" href="//www.imdb.com/">IMDb</a>
+		<a class="test x1 y2" href="http://www.html5rocks.com/en/">HTML5 Rocks</a>
+		<a class="test x2 y0" href="//www.weather.com/">National and Local Weather</a>
+		<a class="test x2 y1 previewbox-anchor" href="http://techcrunch.com/2013/10/05/the-potential-and-pitfalls-of-twitters-mobile-business/">The Potential And Pitfalls Of Twitter’s Mobile Business</a>
+		<a class="test x2 y2" href="http://css-tricks.com/blurry-transparent-header-effect-ios7-css/">Blurry Transparent Header Effect from iOS7 in CSS</a>
+	</div>
+	
+	<script src="previewbox.js"></script>
+	<script src="lib/mocha.js"></script>
+	<script src="lib/proclaim.js"></script>
+	<script>			
+		var mochaTest = {
+			
+				flag_run_mocha_tests : 1,
+				
+				flag_state_pass : "passed",
+				
+				flag_isPass : true,
+				
+				suites : [],
+				
+				isPass : function () {
+					
+					var i;
+					
+					if (arguments.length == 0) {
+						
+						for (i = this.suites.length - 1; i >= 0; i--) {	
+						
+							if (!this.isPass(this.suites[i])) break;						
+						}
+					
+					} else {
+					
+						var suite = arguments[0]; // The real Mocha test suite
+						
+						if (suite.tests.length > 0) {
+							
+							for (i = suite.tests.length - 1; i >= 0; i--) {
+															
+								if (suite.tests[i].state !== this.flag_state_pass) return (this.flag_isPass = false);
+							}
+						}
+						
+						if (suite.suites.length > 0) {
+							
+							for (i = suite.suites.length - 1; i >= 0; i--) {
+															
+								if (!this.isPass(suite.suites[i])) return this.flag_isPass;
+							}						
+						}
+					}
+					
+					return this.flag_isPass;
+				}
+			},
+			
+			setupDemo = function (mochaErr) {
+		
+				if (!mochaErr && mochaTest.isPass()) {
+					
+					document.querySelector("#mocha").style.display = "none";
+					document.querySelector("#anchorsHolder").style.display = "block";
+					
+					for (var i = 0, as = document.querySelectorAll("#anchorsHolder a"); i < as.length; i++) {
+						previewbox.regisAnchor(as[i]);
+					}
+					
+					previewbox.changeStyles({
+						iframeW : 999999,
+						iframeH : 999999
+					});
+					
+					previewbox.setSandbox("allow-scripts");	
+				}				
+			};
+	</script>
+	<script>
+		/**
+         * Mocha tests
+		 */		 
+		
+		if (mochaTest.flag_run_mocha_tests) {
+		
+			mocha.setup("bdd");
+			
+			var assert = proclaim,
+			
+				assertAnchorRegistered = function (a) {	
+					
+					var expNodeType = 1,
+						
+						expAnchorType = 0;
+						
+					assert.notEqual(a, null, "assertAnchorRegistered but null");
+					
+					assert.isObject(a, "assertAnchorRegistered but not object");
+					
+					assert.strictEqual(a.nodeType, expNodeType, formaStr("assertAnchorRegistered but nodeType (actual , expected) = ({0}, {1})", a.nodeType, expNodeType));
+					
+					assert.greaterThanOrEqual(a.anchorType, 0, formaStr("assertAnchorRegistered but anchorType (actual < expected) => ({0} < {1})", a.anchorType, expAnchorType));
+				},
+				
+				formaStr = function () { // From : http://jsfiddle.net/joquery/9KYaQ/
+				
+					// The string containing the format items (e.g. "{0}")
+					// will and always has to be the first argument.
+					var theString = arguments[0];
+					
+					// start with the second argument (i = 1)
+					for (var i = 1; i < arguments.length; i++) {
+						// "gm" = RegEx options for Global search (more than one instance)
+						// and for Multiline search
+						var regEx = new RegExp("\\{" + (i - 1) + "\\}", "gm");
+						theString = theString.replace(regEx, arguments[i]);
+					}
+					
+					return theString;
+				};
+			
+			mochaTest.suites.push(describe("previewbox", function () {
+			
+				describe("#setSandbox", function () {
+					
+					it("should set sandbox", function () {
+						
+						var v = "allow-same-origin allow-scripts allow-forms";
+						
+						assert.strictEqual(previewbox.setSandbox(v), v);						
+					});					
+				});				
+			
+				describe("#rmSandbox", function () {
+					
+					it("should remove sandbox", function () {
+						
+						previewbox.rmSandbox();
+						
+						assert.strictEqual(document.querySelector("#previewbox-iframe").getAttribute("sandbox"), null);
+					});					
+				});
+							
+				describe("#changeStyles", function () {
+					
+					it("should change styles", function () {
+						
+						var newStyles = {
+								iframeW : 300,
+								iframeH : 400,
+								boxBorderColor : "#555",
+								loadingImg : "url(./loading.gif)"
+							},
+							currentStys = previewbox.changeStyles(newStyles);
+							
+						assert.notEqual(currentStys, null, "The current style is null");
+						
+						assert.isObject(currentStys, "The returned style is not obj");
+						
+						for (var p in newStyles) {
+						
+							if (newStyles.hasOwnProperty(p)) {								
+								assert.strictEqual(currentStys[p], newStyles[p], formaStr("The {0} style (actual, expected) = ({1}, {2})", p, currentStys[p], newStyles[p]));
+							}
+						}						
+					});					
+				});
+							
+				describe("#regisAnchor", function () {
+					
+					it("should register anchor", function () {
+						
+						var a = document.querySelectorAll("#anchorsHolder a");
+						
+						assertAnchorRegistered(previewbox.regisAnchor(a[a.length - 1]));
+					});
+				});
+							
+				describe("#regisBySearching", function () {
+					
+					it("should register anchors thru searching", function () {
+						
+						var expLength = 4,
+						
+							acs = previewbox.regisBySearching();
+						
+						assert.notEqual(acs, null, "No anchor regsiterd");
+						
+						assert.isObject(acs, "The returned value is not obj");
+						
+						assert.equal(acs.length, expLength, formaStr("The number of anchors registered (actual, expected) = ({0}, {1})", acs.length, expLength));
+						
+						for (var i = acs.length - 1; i >= 0; i--) {
+							assertAnchorRegistered(acs[i]);
+						}
+					});
+				});
+								
+			}));			
+			
+			mocha.run(setupDemo);
+			
+		} else {
+		
+			setupDemo();
+		}
+	</script>
+</body>
+</html>
