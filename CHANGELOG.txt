@@ -1,0 +1,16 @@
+# Version: 0.1.0
+
+# Date: 2015.4.1
+
+# Items:
+	> Switch to the mocha test
+
+# Remark:
+	> Buggy: IE8/9/10. It seems that even though the mouse is still on the preview box's area, IE still lets the preview box disappear while the mouse is hovering on the right or bottom scroll bar of the box.
+	         Need more investigation on IE.
+	
+# Future improvements in consideration:
+	> Support mobile and tablet scenario
+	> Add the method to destory one preview anchor to make the <a> element return back to an normal <a>
+	> Open more styles for change and customization, for example:
+		* the "Preview" translation 
