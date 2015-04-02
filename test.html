@@ -52,7 +52,7 @@
 	<script src="previewbox.js"></script>
 	<script src="lib/mocha.js"></script>
 	<script src="lib/proclaim.js"></script>
-	<script>			
+	<script>
 		var mochaTest = {
 			
 				flag_run_mocha_tests : 1,
@@ -61,37 +61,20 @@
 				
 				flag_isPass : true,
 				
-				suites : [],
-				
-				isPass : function () {
+				isPass : function (suite) {				
 					
-					var i;
+					if (suite instanceof Object) {
 					
-					if (arguments.length == 0) {
-						
-						for (i = this.suites.length - 1; i >= 0; i--) {	
-						
-							if (!this.isPass(this.suites[i])) break;						
+						var i;
+								
+						for (i = suite.tests.length - 1; i >= 0; i--) {
+														
+							if (suite.tests[i].state !== this.flag_state_pass) return (this.flag_isPass = false);
 						}
-					
-					} else {
-					
-						var suite = arguments[0]; // The real Mocha test suite
-						
-						if (suite.tests.length > 0) {
-							
-							for (i = suite.tests.length - 1; i >= 0; i--) {
-															
-								if (suite.tests[i].state !== this.flag_state_pass) return (this.flag_isPass = false);
-							}
-						}
-						
-						if (suite.suites.length > 0) {
-							
-							for (i = suite.suites.length - 1; i >= 0; i--) {
-															
-								if (!this.isPass(suite.suites[i])) return this.flag_isPass;
-							}						
+													
+						for (i = suite.suites.length - 1; i >= 0; i--) {
+														
+							if (!this.isPass(suite.suites[i])) return this.flag_isPass;
 						}
 					}
 					
@@ -101,7 +84,7 @@
 			
 			setupDemo = function (mochaErr) {
 		
-				if (!mochaErr && mochaTest.isPass()) {
+				if (!mochaErr && mochaTest.isPass(mocha.suite)) {
 					
 					document.querySelector("#mocha").style.display = "none";
 					document.querySelector("#anchorsHolder").style.display = "block";
@@ -162,7 +145,7 @@
 					return theString;
 				};
 			
-			mochaTest.suites.push(describe("previewbox", function () {
+			describe("previewbox", function () {
 			
 				describe("#setSandbox", function () {
 					
@@ -239,7 +222,7 @@
 					});
 				});
 								
-			}));			
+			});			
 			
 			mocha.run(setupDemo);
 			
