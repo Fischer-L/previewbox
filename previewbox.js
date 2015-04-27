@@ -333,11 +333,12 @@ var previewbox = (function () {
 							+	        'left:2px;'
 							+	        'font-size:1em;'
 							+	        'background-color: #fff;">Preview</h5>';
+							
 			_previewbox.h5 = _previewbox.querySelector("h5");
 			_previewbox.carpet = _previewbox.querySelector("#previewbox-carpet");
 			_previewbox.iframe = _previewbox.querySelector("#previewbox-iframe");
 			_previewbox.pointer = _previewbox.querySelector("#previewbox-pointer");
-
+			
 			_addEvent(_previewbox.iframe, "load", function () {
 				_previewbox.style.backgroundImage = "";
 			});
@@ -357,7 +358,7 @@ var previewbox = (function () {
 						> anchorType = a number indicating the type of anchor, current only 0 is defined. We use this property to know whether one <a> element had been registered before and know its type (Maybe in the future we will have different featured anchors).
 					* Methods:
 						[ Private ]
-						> _a_detectMouseOut = function (e) : The event listener detecting if the mouse is out of the preview box
+						> _a_startDetectMouseOut = function (e) : The start detecting if the mouse is out of the preview box
 						> _a_callShowBox = function (e) : The event listener calling the _showBox to work
 						> _a_callHideBox = function (e) : The event listener calling the _hideBox to work
 		*/
@@ -366,65 +367,71 @@ var previewbox = (function () {
 				|| !(typeof a.anchorType == "number")
 			) {
 			
-				var _a_detectMouseOut = function (e) {
-				// NOTICE:
-				// This event listener is registered on the previewbox so the "this" is not pointing to the <a> element.
-				// In order to reduce the complexity of tracing code, we put it here together with other codes.
-				// However, this violates the OOP design. Kind of trade-off.
-						e = _normalizeEvent(e);
-
-						var leaveFor = e.toElement || e.relatedTarget;
-	
-						if (_isMouseOut(leaveFor, a)) {
-
-							// IMPORTANT: Remove and wait for the next time
-							if (_getIEVersion() == 8) {
-								_rmEvent(_previewbox.carpet, "mouseleave", _a_detectMouseOut);
-							} else {
-								_rmEvent(_previewbox.carpet, "mouseout", _a_detectMouseOut);
-							}
-							
-							_addEvent(a, "mouseover", _a_callShowBox);
-							_hideBox();
-						}
-					},
+				var
+				_a_startDetectMouseOut = function () {
 					
-					_a_callShowBox = function (e) {
-				
-						e = _normalizeEvent(e);
-						
-						if (_isHref(this.href)) {
-						
-							// This is important. It prevents the preview box from being redrawn repeatedly while onmouseover
-							_rmEvent(this, "mouseover", _a_callShowBox);
-							
-							_showBox(this.href, e.clientX, e.clientY);
-			
-							if (_getIEVersion() == 8) {
-								_addEvent(_previewbox.carpet, "mouseleave", _a_detectMouseOut);
-							} else {
-								_addEvent(_previewbox.carpet, "mouseout", _a_detectMouseOut);
-							}
-						}
-					},
+					function detectOutOfBox () {
 					
-					_a_callHideBox = function (e) {
-				
-						e = _normalizeEvent(e);
-				
-						var a = this,
-							leaveFor = e.toElement || e.relatedTarget;
+						function _a_detectMouseOut (e) {
+						
+							e = _normalizeEvent(e);
 
-						if (_isMouseOut(leaveFor, a)) {
-						// Now the mouse is not moving on the prview box or the <a> element
-							_addEvent(a, "mouseover", _a_callShowBox);
-							_hideBox();
+							var leaveFor = e.toElement || e.relatedTarget;
 
+							if (_isMouseOut(leaveFor, a)) {
+
+								// IMPORTANT: Remove and wait for the next time
+								if (_getIEVersion() == 8) {
+									_rmEvent(_previewbox.carpet, "mouseleave", _a_detectMouseOut);
+								} else {
+									_rmEvent(_previewbox.carpet, "mouseout", _a_detectMouseOut);
+								}
+								
+								_addEvent(a, "mouseover", _a_callShowBox);
+								_hideBox();
+							}
+						};
+							
+						_rmEvent(_previewbox.iframe, "mouseover", detectOutOfBox);
+						
+						if (_getIEVersion() == 8) {
+							_addEvent(_previewbox.carpet, "mouseleave", _a_detectMouseOut);
 						} else {
-						// Now the mouse is moving onto the preview box.
-						// Not hide the preview box until the mouse leaves the preview box or the <a> element.
+							_addEvent(_previewbox.carpet, "mouseout", _a_detectMouseOut);
 						}
 					};
+					
+					_addEvent(_previewbox.iframe, "mouseover", detectOutOfBox);
+				},
+				
+				_a_callShowBox = function (e) {
+			
+					e = _normalizeEvent(e);
+					
+					if (_isHref(this.href)) {
+					
+						// This is important. It prevents the preview box from being redrawn repeatedly while onmouseover
+						_rmEvent(this, "mouseover", _a_callShowBox);
+						
+						_showBox(this.href, e.clientX, e.clientY);
+
+						_a_startDetectMouseOut();
+					}
+				},
+				
+				_a_callHideBox = function (e) {
+			
+					e = _normalizeEvent(e);
+			
+					var a = this,
+						leaveFor = e.toElement || e.relatedTarget;
+
+					if (_isMouseOut(leaveFor, a)) {
+						_addEvent(a, "mouseover", _a_callShowBox);
+						_hideBox();
+
+					}
+				};
 					
 				a.anchorType = 0;
 				
