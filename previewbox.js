@@ -381,11 +381,7 @@ var previewbox = (function () {
 							if (_isMouseOut(leaveFor, a)) {
 
 								// IMPORTANT: Remove and wait for the next time
-								if (_getIEVersion() == 8) {
-									_rmEvent(_previewbox.carpet, "mouseleave", _a_detectMouseOut);
-								} else {
-									_rmEvent(_previewbox.carpet, "mouseout", _a_detectMouseOut);
-								}
+								_rmEvent(_previewbox.carpet, "mouseout", _a_detectMouseOut);
 								
 								_addEvent(a, "mouseover", _a_callShowBox);
 								_hideBox();
@@ -393,12 +389,7 @@ var previewbox = (function () {
 						};
 							
 						_rmEvent(_previewbox.iframe, "mouseover", detectOutOfBox);
-						
-						if (_getIEVersion() == 8) {
-							_addEvent(_previewbox.carpet, "mouseleave", _a_detectMouseOut);
-						} else {
-							_addEvent(_previewbox.carpet, "mouseout", _a_detectMouseOut);
-						}
+						_addEvent(_previewbox.carpet, "mouseout", _a_detectMouseOut);
 					};
 					
 					_addEvent(_previewbox.iframe, "mouseover", detectOutOfBox);
@@ -435,11 +426,7 @@ var previewbox = (function () {
 				a.anchorType = 0;
 				
 				_addEvent(a, "mouseover", _a_callShowBox);
-				if (_getIEVersion() == 8) {
-					_addEvent(a, "mouseleave", _a_callHideBox);
-				} else {
-					_addEvent(a, "mouseout", _a_callHideBox);
-				}
+				_addEvent(a, "mouseout", _a_callHideBox);
 			}
 			return a;
 		}
