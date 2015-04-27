@@ -358,7 +358,7 @@ var previewbox = (function () {
 						> anchorType = a number indicating the type of anchor, current only 0 is defined. We use this property to know whether one <a> element had been registered before and know its type (Maybe in the future we will have different featured anchors).
 					* Methods:
 						[ Private ]
-						> _a_startDetectMouseOut = function (e) : The start detecting if the mouse is out of the preview box
+						> _a_startDetectMouseOut = function (e) : Start detecting if the mouse is out of the preview box
 						> _a_callShowBox = function (e) : The event listener calling the _showBox to work
 						> _a_callHideBox = function (e) : The event listener calling the _hideBox to work
 		*/
@@ -405,15 +405,15 @@ var previewbox = (function () {
 				},
 				
 				_a_callShowBox = function (e) {
-			
+				
 					e = _normalizeEvent(e);
 					
-					if (_isHref(this.href)) {
+					if (_isHref(a.href)) {
 					
 						// This is important. It prevents the preview box from being redrawn repeatedly while onmouseover
-						_rmEvent(this, "mouseover", _a_callShowBox);
+						_rmEvent(a, "mouseover", _a_callShowBox);
 						
-						_showBox(this.href, e.clientX, e.clientY);
+						_showBox(a.href, e.clientX, e.clientY);
 
 						_a_startDetectMouseOut();
 					}
@@ -423,8 +423,7 @@ var previewbox = (function () {
 			
 					e = _normalizeEvent(e);
 			
-					var a = this,
-						leaveFor = e.toElement || e.relatedTarget;
+					var leaveFor = e.toElement || e.relatedTarget;
 
 					if (_isMouseOut(leaveFor, a)) {
 						_addEvent(a, "mouseover", _a_callShowBox);
