@@ -34,23 +34,24 @@ var previewbox = (function () {
 		> regisBySearching : function () : To search all the <a> elements with the CSS class, "previewbox-anchor", in the docuemnt and register the findings
 */
 		var _CONST = {
-			boxID : "previewbox",
-			anchorClass : "previewbox-anchor",
-			fallbackWindowW : 1024,
-			fallbackWindowH : 768,
-			windowWidth : 0, // Define later. Would be this.fallbackWindowW when unable to get the client window info
-			windowHeight : 0, // Define later. Would be this.fallbackWindowW when unable to get the client window info
-			windowPadding : 15, // The min space (in px) between the preview box and the window top/bottom
-			iframeMaxW : 0, // Define later. Shall be the window width * 0.45
-			iframeMaxH : 0, // Define later. Shall be the window height * 0.7
-			iframeMinW : 1024 * 0.45 * 0.6,
-			iframeMinH : 768 * 0.7 * 0.6,
-			boxBorderW : 4,
-			box2PtrPadding : 15, // The min space between the preview box's pointer and the preview box top/bottom
-			ptrBorderTopW : 5,
-			ptrBorderLeftW : 16,
-			dequeue : "dequeue",
-			validProtocols : ["//", "http://", "https://"]
+				DBG : true,
+				boxID : "previewbox",
+				anchorClass : "previewbox-anchor",
+				fallbackWindowW : 1024,
+				fallbackWindowH : 768,
+				windowWidth : 0, // Define later. Would be this.fallbackWindowW when unable to get the client window info
+				windowHeight : 0, // Define later. Would be this.fallbackWindowW when unable to get the client window info
+				windowPadding : 15, // The min space (in px) between the preview box and the window top/bottom
+				iframeMaxW : 0, // Define later. Shall be the window width * 0.45
+				iframeMaxH : 0, // Define later. Shall be the window height * 0.7
+				iframeMinW : 1024 * 0.45 * 0.6,
+				iframeMinH : 768 * 0.7 * 0.6,
+				boxBorderW : 4,
+				box2PtrPadding : 15, // The min space between the preview box's pointer and the preview box top/bottom
+				ptrBorderTopW : 5,
+				ptrBorderLeftW : 16,
+				dequeue : "dequeue",
+				validProtocols : ["//", "http://", "https://"]
 		};
 		var _settings = {			
 			iframeW : 0, // The #previewbox-iframe width
@@ -98,8 +99,11 @@ var previewbox = (function () {
 		*/
 		var _normalizeEvent = function (e) {
 			// Cope with the cross browser compatibility
-			e = e || window.event;
-			e.target = e.target || e.srcElement;
+			
+			if (!e) e = window.event;
+			
+			if (!e.target) e.target = e.srcElement || document;
+			
 			return e;
 		}
 		/*	Arg:
@@ -217,7 +221,7 @@ var previewbox = (function () {
 			// The room in the window bottom is enough for the whole box
 				bTop = mousePosY - _CONST.windowPadding * 2;
 			} else {
-				bTop = (_CONST.windowHeight - bSize.height - _CONST.windowPadding);
+				bTop = _CONST.windowHeight - bSize.height - _CONST.windowPadding;
 			}			
 			_previewbox.style.top = bTop + "px";
 			
@@ -233,7 +237,7 @@ var previewbox = (function () {
 			
 			if (mousePosX < _CONST.windowWidth / 2) {
 			// The mouse is at the left half side of the window
-				_previewbox.style.left = (mousePosX + pWidth - 4) + "px";
+				_previewbox.style.left = (mousePosX + pWidth/2) + "px";
 				_previewbox.pointer.style.left = pHozPos + "px";
 				_previewbox.pointer.style.right = "";
 				_previewbox.pointer.style.borderTopColor = "transparent";
@@ -242,7 +246,7 @@ var previewbox = (function () {
 				
 			} else {
 			// The mouse is at the right half side of the window
-				_previewbox.style.left = (mousePosX - bSize.width - pWidth - 4) + "px";
+				_previewbox.style.left = (mousePosX - bSize.width - pWidth/2) + "px";
 				_previewbox.pointer.style.left = "";
 				_previewbox.pointer.style.right = pHozPos + "px";
 				_previewbox.pointer.style.borderTopColor = "transparent";
@@ -302,8 +306,8 @@ var previewbox = (function () {
 			div.style.zIndex = 9999999999999;
 			div.innerHTML = '<div id="previewbox-carpet" style="position:absolute;'
 							+									'z-index:1;'
-							+									'top:' + -(_CONST.ptrBorderLeftW) + "px;"/*- (0.5 * the total border width of the #previewbox-pointer)*/
-							+									'left:' + -(_CONST.ptrBorderLeftW) + "px;"/*- (0.5 * the total border width of the #previewbox-pointer)*/
+							+									'top:' + -(_CONST.ptrBorderLeftW) + "px;"
+							+									'left:' + -(_CONST.ptrBorderLeftW) + "px;"
 																/* width: the total width of the box + the total width of the #previewbox-pointer;
 							                                       height: the total height of the box + the total width of the #previewbox-pointer;
 																*/
@@ -389,6 +393,26 @@ var previewbox = (function () {
 			_addEvent(_previewbox, "load", function () {
 				_previewbox.style.backgroundImage = "";
 			});
+			
+
+			
+					
+if (_CONST.DBG) {	// To Del
+
+	var carpet = div.querySelector("#previewbox-carpet");
+	
+	carpet.style.border = "1px dotted green";
+	
+	carpet.onmouseover = (function () {
+			
+			var t = 0;
+			
+		return function (e) {
+			console.log("carpet.onmouseover : " + t++);
+	}})();
+	//return; 
+} 
+			
 			return _previewbox;
 		}
 		/*	Arg:
@@ -429,13 +453,15 @@ var previewbox = (function () {
 				*/
 				var _a_callHideBox = function (e) {
 					e = _normalizeEvent(e);
-					var anchor = e.target;
+					
+					var anchor = e.target,
 						leaveFor = e.toElement || e.relatedTarget;
+						
 					if (_isMouseOut(leaveFor, anchor)) {
 					// Now the mouse is not moving on the prview box or the <a> element
 						_addEvent(a, "mouseover", _a_callShowBox);
 						_hideBox();
-						
+
 					} else {
 					// Now the mouse is moving onto the preview box.
 					// Not hide the preview box until the mouse leaves the preview box or the <a> element.
