@@ -4,6 +4,7 @@
  * Copyright (C) 2013 Fischer Liu | MIT license | https://github.com/Fischer-L/previewbox
  *******************************************************************************************/
 var previewbox = (function () {
+	"use strict";
 /*	Properties:
 		[ Private ]
 		> _CONST = an obj holding the constants
@@ -340,16 +341,28 @@ var previewbox = (function () {
 			_previewbox.pointer = _previewbox.querySelector("#previewbox-pointer");
 			
 			var _previewbox_queueOnmouseout = [];
+			
 			var _previewbox_runQueue = function (e) {
-				e = _normalizeEvent(e);
+			
 				var i,
 					q = _previewbox_queueOnmouseout;
+					
+				e = _normalizeEvent(e);
 
 				_previewbox_queueOnmouseout = [];
+				
 				for (i = 0; i < q.length; i++) {
+				
 					if (typeof q[i] == "function") {
-						if (q[i](e) !== _CONST.dequeue) {
-							_previewbox_queueOnmouseout.push(q[i]);
+						
+						try {
+					
+							if (q[i](e) !== _CONST.dequeue) {							
+								_previewbox_queueOnmouseout.push(q[i]);
+							}
+						
+						} catch (err) {						
+							console.error(err);
 						}
 					}
 				}
@@ -401,10 +414,14 @@ var previewbox = (function () {
 			) {
 				var _a_queued = false;
 				var _a_callShowBox = function (e) {
+				
 					e = _normalizeEvent(e);
-					// This is important. It prevents the preview box from being redrawn repeatedly while onmouseover
-					_rmEvent(a, "mouseover", _a_callShowBox);
+					
 					if (_isHref(e.target.href)) {
+					
+						// This is important. It prevents the preview box from being redrawn repeatedly while onmouseover
+						_rmEvent(a, "mouseover", _a_callShowBox);
+						
 						_showBox(e.target.href, e.clientX, e.clientY);
 					}
 				}
