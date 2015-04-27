@@ -4,7 +4,7 @@
  * Copyright (C) 2013 Fischer Liu | MIT license | https://github.com/Fischer-L/previewbox
  *******************************************************************************************/
 var previewbox = (function () {
-	//"use strict";
+	"use strict";
 /*	Properties:
 		[ Private ]
 		> _CONST = an obj holding the constants
@@ -34,7 +34,6 @@ var previewbox = (function () {
 		> regisBySearching : function () : To search all the <a> elements with the CSS class, "previewbox-anchor", in the docuemnt and register the findings
 */
 		var _CONST = {
-				DBG : true,
 				boxID : "previewbox",
 				anchorClass : "previewbox-anchor",
 				fallbackWindowW : 1024,
@@ -62,18 +61,11 @@ var previewbox = (function () {
 			loadingImg : "" // The backgournd image used when loading
 		};
 		/*	Properties:
-				[ Private ]
-				> _previewbox_queueOnmouseout = an array of functions to call on the onmouseout event.
 				[ Public ]
 				> h5 = _previewbox.querySelector("h5");
 				> carpet = _previewbox.querySelector("#previewbox-carpet");
 				> iframe = _previewbox.querySelector("#previewbox-iframe");
 				> pointer = _previewbox.querySelector("#previewbox-pointer");
-			Methods:
-				[ Private ]
-				> _previewbox_runQueue = function () : Invoke the functions in this::_previewbox_queueOnmouseout one by one
-				[ Public ]
-				> queueOnmouseout = function (func) : Push one functions into this::_previewbox_queueOnmouseout
 			Note:
 				The _previewbox obj would be made during the intialization stage. Here just temporarily use null.
 		*/
@@ -345,55 +337,6 @@ var previewbox = (function () {
 			_previewbox.carpet = _previewbox.querySelector("#previewbox-carpet");
 			_previewbox.iframe = _previewbox.querySelector("#previewbox-iframe");
 			_previewbox.pointer = _previewbox.querySelector("#previewbox-pointer");
-	
-if (false) { // To Del Old	
-			var _previewbox_queueOnmouseout = [];
-			
-			var _previewbox_runQueue = function (e) {
-			
-				var i,
-					q = _previewbox_queueOnmouseout;
-					
-				e = _normalizeEvent(e);
-
-				_previewbox_queueOnmouseout = [];
-				
-				for (i = 0; i < q.length; i++) {
-				
-					if (typeof q[i] == "function") {
-						
-						try {
-					
-							if (q[i](e) !== _CONST.dequeue) {							
-								_previewbox_queueOnmouseout.push(q[i]);
-							}
-						
-						} catch (err) {						
-							console.error(err);
-						}
-					}
-				}
-			}
-			/*	Arg:
-					> func = One function, shall implement the below interface:
-						     * Arg:
-								 > e = the event obj for the onmouse event
-							 * Return:
-								 @ Want to be remove from the queue: this::_CONST.dequeue
-								 @ Not wnat to be remove from the queue: any different from this::_CONST.dequeue
-			*/
-			_previewbox.queueOnmouseout = function (func) {
-				if (typeof func === "function") {
-					_previewbox_queueOnmouseout.push(func);
-				}
-			}
-			
-			if (_getIEVersion() == 8) {
-				_addEvent(_previewbox, "mouseleave", _previewbox_runQueue);
-			} else {
-				_addEvent(_previewbox, "mouseout", _previewbox_runQueue);
-			}			
-}
 
 			_addEvent(_previewbox.iframe, "load", function () {
 				_previewbox.style.backgroundImage = "";
@@ -482,56 +425,7 @@ if (false) { // To Del Old
 						// Not hide the preview box until the mouse leaves the preview box or the <a> element.
 						}
 					};
-		
-if (false) { // To Del OLD
-				var _a_queued = false;
-				var _a_callShowBox = function (e) {
-				
-					e = _normalizeEvent(e);
 					
-					if (_isHref(e.target.href)) {
-					
-						// This is important. It prevents the preview box from being redrawn repeatedly while onmouseover
-						_rmEvent(a, "mouseover", _a_callShowBox);
-						
-						_showBox(e.target.href, e.clientX, e.clientY);
-					}
-				}
-				/*
-				*/
-				var _a_callHideBox = function (e) {
-
-					e = _normalizeEvent(e);
-
-					var anchor = e.target,
-						leaveFor = e.toElement || e.relatedTarget;
-
-					if (_isMouseOut(leaveFor, anchor)) {
-					// Now the mouse is not moving on the prview box or the <a> element
-						_addEvent(a, "mouseover", _a_callShowBox);
-						_hideBox();
-
-					} else {
-					// Now the mouse is moving onto the preview box.
-					// Not hide the preview box until the mouse leaves the preview box or the <a> element.
-						if (!_a_queued) {
-
-							_a_queued = true;
-
-							_previewbox.queueOnmouseout(function (e) {
-								var leaveFor = e.toElement || e.relatedTarget;
-								if (_isMouseOut(leaveFor, anchor)) {
-									_addEvent(a, "mouseover", _a_callShowBox);
-									_hideBox();
-									_a_queued = false;
-									// Once the mouse leaves, the queue is no longer needed. Let's dqueue!
-									return _CONST.dequeue;
-								}
-							});
-						}
-					}
-				}
-}
 				a.anchorType = 0;
 				
 				_addEvent(a, "mouseover", _a_callShowBox);
