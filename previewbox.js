@@ -4,7 +4,7 @@
  * Copyright (C) 2013 Fischer Liu | MIT license | https://github.com/Fischer-L/previewbox
  *******************************************************************************************/
 var previewbox = (function () {
-	"use strict";
+	//"use strict";
 /*	Properties:
 		[ Private ]
 		> _CONST = an obj holding the constants
@@ -254,8 +254,11 @@ var previewbox = (function () {
 				_previewbox.pointer.style.borderRightColor = "transparent";
 			}
 			
-			_previewbox.carpet.style.width = (bSize.width + pWidth) + "px";
-			_previewbox.carpet.style.height = (bSize.height + pWidth) + "px";
+			var carpetW = bSize.width + pWidth,
+				carpetH = bSize.height + pWidth;
+			
+			_previewbox.carpet.style.width = carpetW + "px";
+			_previewbox.carpet.style.height = carpetH + "px";
 			
 			if (_settings.boxShadow) {
 				_previewbox.style.oBoxShadow = _settings.boxShadow;
@@ -264,7 +267,6 @@ var previewbox = (function () {
 				_previewbox.style.webkitBoxShadow = _settings.boxShadow;
 				_previewbox.style.boxShadow = _settings.boxShadow;
 			}
-				
 		}		
 		/*	Arg:
 				> herf = the href to the preview content
@@ -292,6 +294,9 @@ var previewbox = (function () {
 				Refer to this::_previewbox
 		*/
 		var _mkPrviewBox = function (div) {
+		
+			_previewbox = div;
+			
 			div.id = _CONST.boxID;
 			div.style.display = "none";
 			div.style.border = _CONST.boxBorderW + 'px solid ' + _settings.boxBorderColor;
@@ -311,8 +316,7 @@ var previewbox = (function () {
 																/* width: the total width of the box + the total width of the #previewbox-pointer;
 							                                       height: the total height of the box + the total width of the #previewbox-pointer;
 																*/
-							+'">'
-							+'</div>'
+							+'"></div>'
 							+'<div id="previewbox-pointer" style="border: 20px solid ' + _settings.boxBorderColor + ';'
 							+									'border-width: ' + _CONST.ptrBorderTopW + 'px ' + _CONST.ptrBorderLeftW + 'px;'
 							+									'position:absolute;'
@@ -327,8 +331,7 @@ var previewbox = (function () {
 																   border-right-color: transparent;
 																   right: - (The total width of this + the right border of the box -1);
 																*/
-							+									'">'
-						    +'</div>'
+							+'"></div>'
 						    +'<iframe id="previewbox-iframe" frameborder="0" sandbox="allow-scripts" style="border: none; position:relative; z-index:3"></iframe>'
 						    +'<h5 style="margin: 0;'
 							+	        'color: ' + _settings.boxBorderColor + ';'
@@ -338,12 +341,12 @@ var previewbox = (function () {
 							+	        'left:2px;'
 							+	        'font-size:1em;'
 							+	        'background-color: #fff;">Preview</h5>';
-			_previewbox = div;
 			_previewbox.h5 = _previewbox.querySelector("h5");
 			_previewbox.carpet = _previewbox.querySelector("#previewbox-carpet");
 			_previewbox.iframe = _previewbox.querySelector("#previewbox-iframe");
 			_previewbox.pointer = _previewbox.querySelector("#previewbox-pointer");
-			
+	
+if (false) { // To Del Old	
 			var _previewbox_queueOnmouseout = [];
 			
 			var _previewbox_runQueue = function (e) {
@@ -389,29 +392,12 @@ var previewbox = (function () {
 				_addEvent(_previewbox, "mouseleave", _previewbox_runQueue);
 			} else {
 				_addEvent(_previewbox, "mouseout", _previewbox_runQueue);
-			}
-			_addEvent(_previewbox, "load", function () {
+			}			
+}
+
+			_addEvent(_previewbox.iframe, "load", function () {
 				_previewbox.style.backgroundImage = "";
 			});
-			
-
-			
-					
-if (_CONST.DBG) {	// To Del
-
-	var carpet = div.querySelector("#previewbox-carpet");
-	
-	carpet.style.border = "1px dotted green";
-	
-	carpet.onmouseover = (function () {
-			
-			var t = 0;
-			
-		return function (e) {
-			console.log("carpet.onmouseover : " + t++);
-	}})();
-	//return; 
-} 
 			
 			return _previewbox;
 		}
@@ -428,14 +414,76 @@ if (_CONST.DBG) {	// To Del
 						> anchorType = a number indicating the type of anchor, current only 0 is defined. We use this property to know whether one <a> element had been registered before and know its type (Maybe in the future we will have different featured anchors).
 					* Methods:
 						[ Private ]
-						> _a_callShowBox = function (e) : Call the _showBox to work
-						> _a_callHideBox = function (e) : Call the _hideBox to work
-						[ Public ]
+						> _a_detectMouseOut = function (e) : The event listener detecting if the mouse is out of the preview box
+						> _a_callShowBox = function (e) : The event listener calling the _showBox to work
+						> _a_callHideBox = function (e) : The event listener calling the _hideBox to work
 		*/
 		var _mkPreviewAnchor = function (a) {
-			if (!(a.anchorType >= 0)
+			if (   !(a.anchorType >= 0)
 				|| !(typeof a.anchorType == "number")
 			) {
+			
+				var _a_detectMouseOut = function (e) {
+				// NOTICE:
+				// This event listener is registered on the previewbox so the "this" is not pointing to the <a> element.
+				// In order to reduce the complexity of tracing code, we put it here together with other codes.
+				// However, this violates the OOP design. Kind of trade-off.
+						e = _normalizeEvent(e);
+
+						var leaveFor = e.toElement || e.relatedTarget;
+	
+						if (_isMouseOut(leaveFor, a)) {
+
+							// IMPORTANT: Remove and wait for the next time
+							if (_getIEVersion() == 8) {
+								_rmEvent(_previewbox.carpet, "mouseleave", _a_detectMouseOut);
+							} else {
+								_rmEvent(_previewbox.carpet, "mouseout", _a_detectMouseOut);
+							}
+							
+							_addEvent(a, "mouseover", _a_callShowBox);
+							_hideBox();
+						}
+					},
+					
+					_a_callShowBox = function (e) {
+				
+						e = _normalizeEvent(e);
+						
+						if (_isHref(this.href)) {
+						
+							// This is important. It prevents the preview box from being redrawn repeatedly while onmouseover
+							_rmEvent(this, "mouseover", _a_callShowBox);
+							
+							_showBox(this.href, e.clientX, e.clientY);
+			
+							if (_getIEVersion() == 8) {
+								_addEvent(_previewbox.carpet, "mouseleave", _a_detectMouseOut);
+							} else {
+								_addEvent(_previewbox.carpet, "mouseout", _a_detectMouseOut);
+							}
+						}
+					},
+					
+					_a_callHideBox = function (e) {
+				
+						e = _normalizeEvent(e);
+				
+						var a = this,
+							leaveFor = e.toElement || e.relatedTarget;
+
+						if (_isMouseOut(leaveFor, a)) {
+						// Now the mouse is not moving on the prview box or the <a> element
+							_addEvent(a, "mouseover", _a_callShowBox);
+							_hideBox();
+
+						} else {
+						// Now the mouse is moving onto the preview box.
+						// Not hide the preview box until the mouse leaves the preview box or the <a> element.
+						}
+					};
+		
+if (false) { // To Del OLD
 				var _a_queued = false;
 				var _a_callShowBox = function (e) {
 				
@@ -452,11 +500,12 @@ if (_CONST.DBG) {	// To Del
 				/*
 				*/
 				var _a_callHideBox = function (e) {
+
 					e = _normalizeEvent(e);
-					
+
 					var anchor = e.target,
 						leaveFor = e.toElement || e.relatedTarget;
-						
+
 					if (_isMouseOut(leaveFor, anchor)) {
 					// Now the mouse is not moving on the prview box or the <a> element
 						_addEvent(a, "mouseover", _a_callShowBox);
@@ -466,7 +515,9 @@ if (_CONST.DBG) {	// To Del
 					// Now the mouse is moving onto the preview box.
 					// Not hide the preview box until the mouse leaves the preview box or the <a> element.
 						if (!_a_queued) {
+
 							_a_queued = true;
+
 							_previewbox.queueOnmouseout(function (e) {
 								var leaveFor = e.toElement || e.relatedTarget;
 								if (_isMouseOut(leaveFor, anchor)) {
@@ -480,7 +531,7 @@ if (_CONST.DBG) {	// To Del
 						}
 					}
 				}
-				
+}
 				a.anchorType = 0;
 				
 				_addEvent(a, "mouseover", _a_callShowBox);
