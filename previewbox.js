@@ -33,33 +33,34 @@ var previewbox = (function () {
 		> regisAnchor : function (a) : To convert one <a> element into the preview anchor and register it so the preview happens when moving mouse on the <a>
 		> regisBySearching : function () : To search all the <a> elements with the CSS class, "previewbox-anchor", in the docuemnt and register the findings
 */
-		var _CONST = {
-				boxID : "previewbox",
-				anchorClass : "previewbox-anchor",
-				fallbackWindowW : 1024,
-				fallbackWindowH : 768,
-				windowWidth : 0, // Define later. Would be this.fallbackWindowW when unable to get the client window info
-				windowHeight : 0, // Define later. Would be this.fallbackWindowW when unable to get the client window info
-				windowPadding : 15, // The min space (in px) between the preview box and the window top/bottom
-				iframeMaxW : 0, // Define later. Shall be the window width * 0.45
-				iframeMaxH : 0, // Define later. Shall be the window height * 0.7
-				iframeMinW : 1024 * 0.45 * 0.6,
-				iframeMinH : 768 * 0.7 * 0.6,
-				boxBorderW : 4,
-				box2PtrPadding : 15, // The min space between the preview box's pointer and the preview box top/bottom
-				ptrBorderTopW : 5,
-				ptrBorderLeftW : 16,
-				dequeue : "dequeue",
-				validProtocols : ["//", "http://", "https://"]
-		};
-		var _settings = {			
+		var 
+		_CONST = {
+			boxID : "previewbox",
+			anchorClass : "previewbox-anchor",
+			fallbackWindowW : 1024,
+			fallbackWindowH : 768,
+			windowWidth : 0, // Define later. Would be this.fallbackWindowW when unable to get the client window info
+			windowHeight : 0, // Define later. Would be this.fallbackWindowW when unable to get the client window info
+			windowPadding : 15, // The min space (in px) between the preview box and the window top/bottom
+			iframeMaxW : 0, // Define later. Shall be the window width * 0.45
+			iframeMaxH : 0, // Define later. Shall be the window height * 0.7
+			iframeMinW : 1024 * 0.45 * 0.6,
+			iframeMinH : 768 * 0.7 * 0.6,
+			boxBorderW : 4,
+			box2PtrPadding : 15, // The min space between the preview box's pointer and the preview box top/bottom
+			ptrBorderTopW : 5,
+			ptrBorderLeftW : 16,
+			dequeue : "dequeue",
+			validProtocols : ["//", "http://", "https://"]
+		},
+		_settings = {			
 			iframeW : 0, // The #previewbox-iframe width
 			iframeH : 0, // The #previewbox-iframe height
 			boxBorderColor : "#333", // The border color of the preview box(affecting #previewbox, #previewbox-pointer and #previewbox > h5)
 			boxPadding : 14, // The padding of the preview box(affecting #previewbox)
 			boxShadow : "", // The preview box's box-shadow
 			loadingImg : "" // The backgournd image used when loading
-		};
+		},
 		/*	Properties:
 				[ Public ]
 				> h5 = _previewbox.querySelector("h5");
@@ -69,12 +70,12 @@ var previewbox = (function () {
 			Note:
 				The _previewbox obj would be made during the intialization stage. Here just temporarily use null.
 		*/
-		var _previewbox = null;
+		_previewbox = null,
 		/*	Return:
 				@ Is IE: <NUM> the version of IE
 				@ Not IE: NaN
 		*/
-		var _getIEVersion = function () {
+		_getIEVersion = function () {
 			var rv = -1; // Return value assumes failure.
 			if (navigator.appName == 'Microsoft Internet Explorer') {
 			  var ua = navigator.userAgent;
@@ -83,13 +84,13 @@ var previewbox = (function () {
 				 rv = +(RegExp.$1);
 			}
 			return (rv === -1) ? NaN : rv;
-		}
+		},
 		/*	Arg: 
 				> e = the event object
 			Return:
 				> The normalized event
 		*/
-		var _normalizeEvent = function (e) {
+		_normalizeEvent = function (e) {
 			// Cope with the cross browser compatibility
 			
 			if (!e) e = window.event;
@@ -97,31 +98,31 @@ var previewbox = (function () {
 			if (!e.target) e.target = e.srcElement || document;
 			
 			return e;
-		}
+		},
 		/*	Arg:
 				> elem = the element to which the event is added
 				> evt = The event string excluding "on"
 				> eHandle = the event handle
 		*/
-		var _addEvent = function (elem, evt, eHandle) {
+		_addEvent = function (elem, evt, eHandle) {
 			if (elem.addEventListener) {
 				elem.addEventListener(evt, eHandle);
 			} else if (elem.attachEvent) { // The IE 8 case
 				elem.attachEvent("on" + evt, eHandle);
 			}
-		}
+		},
 		/*	Arg:
 				> elem = the element to which the event is added
 				> evt = The event string excluding "on"
 				> eHandle = the event handle
 		*/
-		var _rmEvent = function (elem, evt, eHandle) {
+		_rmEvent = function (elem, evt, eHandle) {
 			if (elem.removeEventListener) {
 				elem.removeEventListener(evt, eHandle);
 			} else if (elem.detachEvent) { // The IE 8 case
 				elem.detachEvent("on" + evt, eHandle);
 			}
-		}
+		},
 		/*	Arg:
 				> leaveFor = the toElement or e.relatedTarget of the onmouseout event, meaning the element for which the mouse leaves
 				> anchor = the <a> element calling this::_showBox
@@ -129,7 +130,7 @@ var previewbox = (function () {
 				@ The mouse is still on the previewbox or the anchor <a> element: false
 				@ The mouse is not on the previewbox or the anchor <a> element: true
 		*/
-		var _isMouseOut = function (leaveFor, anchor) {
+		_isMouseOut = function (leaveFor, anchor) {
 			var isOut = true,
 				maxDepth = 3,
 				depth = arguments[2] || 0;
@@ -146,14 +147,14 @@ var previewbox = (function () {
 			}
 			
 			return isOut;
-		}
+		},
 		/*	Arg:
 				> href = the href to check
 			Return:
 				@ OK: true
 				@ NG: false
 		*/
-		var _isHref = function (href) {
+		_isHref = function (href) {
 			var is = false;
 			if (href && typeof href == "string") {
 				href = href.toLowerCase();
@@ -165,13 +166,13 @@ var previewbox = (function () {
 				}
 			}
 			return is;
-		}
+		},
 		/*	Return: {
 				windowWidth : the width of the client window in px. If unable to find, then -1.
 				windowHeight : the height of the client window in px. If unable to find, then -1.
 			}
 		*/
-		var _getWindowWH = function () {
+		_getWindowWH = function () {
 		
 			if(window.innerWidth) {
 			
@@ -214,23 +215,23 @@ var previewbox = (function () {
 				windowWidth : -1,
 				windowHeight: -1
 			};
-		}
+		},
 		/*	Return: {
 				width : the total width of the preview box in px.
 				height : the height of the preview box in px.
 			}
 		*/
-		var _getPreviewBoxWH = function () {
+		_getPreviewBoxWH = function () {
 			return {
 				width : _settings.iframeW + _CONST.boxBorderW * 2 + _settings.boxPadding * 2,
 				height : _settings.iframeH + _CONST.boxBorderW * 2 + _settings.boxPadding * 2
 			};
-		}
+		},
 		/*	Arg:
 				> mousePosX = the horizontal coordinate (according to the client area) of the mouse pointer
 				> mousePosY = the vertical coordinate (according to the client area) of the mouse pointer 
 		*/
-		var _setStyle = function (mousePosX, mousePosY) {
+		_setStyle = function (mousePosX, mousePosY) {
 			var bTop,
 				bSize = _getPreviewBoxWH();
 			
@@ -292,33 +293,33 @@ var previewbox = (function () {
 				_previewbox.style.webkitBoxShadow = _settings.boxShadow;
 				_previewbox.style.boxShadow = _settings.boxShadow;
 			}
-		}		
+		},
 		/*	Arg:
 				> herf = the href to the preview content
 				> mousePosX = refer to this::_setPos
 				> mousePosY = refer to this::_setPos
 		*/
-		var _showBox = function (href, mousePosX, mousePosY) {
+		_showBox = function (href, mousePosX, mousePosY) {
 			_setStyle(mousePosX, mousePosY);
 			_previewbox.iframe.src = href;
 			_previewbox.iframe.style.width = _settings.iframeW + "px";
 			_previewbox.iframe.style.height = _settings.iframeH + "px";
 			_previewbox.style.display = "block";
-		}
+		},
 		/*
 		*/
-		var _hideBox = function () {
+		_hideBox = function () {
 			_previewbox.iframe.src = "";
 			_previewbox.display = "none";
 			_previewbox.style.top = "10000px";
 			_previewbox.style.left = "10000px";
-		}
+		},
 		/*	Arg:
 				> div = one <div> element to be converted into the preview box
 			Return:
 				Refer to this::_previewbox
 		*/
-		var _mkPrviewBox = function (div) {
+		_mkPrviewBox = function (div) {
 		
 			_previewbox = div;
 			
@@ -377,7 +378,7 @@ var previewbox = (function () {
 			});
 			
 			return _previewbox;
-		}
+		},
 		/*	Arg:
 				> a = one <a> element to be converted into the preview anchor
 			Return:
@@ -395,7 +396,7 @@ var previewbox = (function () {
 						> _a_callShowBox = function (e) : The event listener calling the _showBox to work
 						> _a_callHideBox = function (e) : The event listener calling the _hideBox to work
 		*/
-		var _mkPreviewAnchor = function (a) {
+		_mkPreviewAnchor = function (a) {
 			if (   !(a.anchorType >= 0)
 				|| !(typeof a.anchorType == "number")
 			) {
@@ -462,10 +463,10 @@ var previewbox = (function () {
 				_addEvent(a, "mouseout", _a_callHideBox);
 			}
 			return a;
-		}
+		},
 		/*
 		*/
-		var _prepPreview = function () {
+		_prepPreview = function () {
 			// Append the preview box into the document if without one
 			var box = document.querySelector("div#" +　_CONST.boxID);
 			if (!box) {
@@ -488,9 +489,8 @@ var previewbox = (function () {
 
 			// Search all the <a> elems with our special class and then register all the findings
 			publicProps.regisBySearching();
-		}
-
-		var publicProps = {
+		},
+		publicProps = {
 			/*	Arg:
 					> v = string, the sandbox value, refe to the HTML5 sandbox spec
 				Return:
