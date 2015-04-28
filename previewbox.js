@@ -7,45 +7,65 @@ var previewbox = (function () {
 	"use strict";
 /*	Properties:
 		[ Private ]
+		> _DBG = one debug control
 		> _CONST = an obj holding the constants
 		> _settings = an obj holding the settins on the preview box. The preview box would work based on these settings dyamically.
 		> _previewbox = an obj, the preview box
 	Methods:
 		[ Private ]
-		> _getIEVersion = function () : Get the IE version
-		> _normalizeEvent = function (e) : Cope with the cross browser compatibility on the event object 
-		> _addEvent = function (elem, evt, eHandle) : Do the same thing as addEventListener and mitigate the IE8 compatibility
-		> _rmEvent = function (elem, evt, eHandle) : Do the same thing as removeEventListener and mitigate the IE8 compatibility
-		> _isMouseOut = function (leaveFor, anchor) : Check if the mouse is on the previewbox or the anchor <a> element or not
-		> _isHref = function (href) : Check for the valid href value
-		> _getWindowWH = function () : Get the client window width and height
-		> _getPreviewBoxWH = function () : Get the preview box total width and height(including the border and padding)
-		> _setStyle = function (mousePosX, mousePosY) : Set up the preview box style for showing up
-		> _showBox = function (href, mousePosX, mousePosY) : Show the preview box
-		> _hideBox = function () : Hide the preview box
-		> _mkPrviewBox = function (div) : Make one preview box
-		> _mkPreviewAnchor = function (a) : Make one preview anchor
-		> _prepPreview = function () : Prepare(Initial) the preview box
+		> _getIEVersion : Get the IE version
+		> _normalizeEvent : Cope with the cross browser compatibility on the event object 
+		> _addEvent : Do the same thing as addEventListener and mitigate the IE8 compatibility
+		> _rmEvent : Do the same thing as removeEventListener and mitigate the IE8 compatibility
+		> _isMouseOut : Check if the mouse is on the previewbox or the anchor <a> element or not
+		> _isHref : Check for the valid href value
+		> _getWindowSize : Get the client window width and height
+		> _getIFrameSize : Get the iframe width and height
+		> _getPreviewBoxSize : Get the preview box total width and height(including the border and padding)
+		> _setStyle : Set up the preview box style for showing up
+		> _showBox : Show the preview box
+		> _hideBox : Hide the preview box
+		> _mkPrviewBox : Make one preview box
+		> _mkPreviewAnchor : Make one preview anchor
+		> _prepPreview : Prepare(Initial) the preview box
 		[ Public ]
-		> setSandbox : function (v) : Set the value of the sandbox on the preview iframe. This will overwrite the original value.
-		> rmSandbox : function () : Remvoe the sandbox on the preview iframe
-		> changeStyles : function (styles) : To change the preview box's style
-		> regisAnchor : function (a) : To convert one <a> element into the preview anchor and register it so the preview happens when moving mouse on the <a>
-		> regisBySearching : function () : To search all the <a> elements with the CSS class, "previewbox-anchor", in the docuemnt and register the findings
+		> setSandbox : Set the value of the sandbox on the preview iframe. This will overwrite the original value.
+		> rmSandbox : Remvoe the sandbox on the preview iframe
+		> changeStyles : To change the preview box's style
+		> regisAnchor : To convert one <a> element into the preview anchor and register it so the preview happens when moving mouse on the <a>
+		> regisBySearching : To search all the <a> elements with the CSS class, "previewbox-anchor", in the docuemnt and register the findings
 */
-		var 
+		var
+		/*	Methods:
+				[ Public ]
+				> isDBG : Tell if under the debug mode
+				> error : Log error to console
+		*/
+		_DBG = (function () {
+				
+			return {
+				/*	Return:
+						@ Under the debug mode: true
+						@ Not Under the debug mode: false
+				*/
+				isDBG : function () {
+					return false;
+				},
+				error : function (msg) {
+					console.error("previewbox error : " + msg);
+				}
+			}
+		})(),
 		_CONST = {
 			boxID : "previewbox",
 			anchorClass : "previewbox-anchor",
 			fallbackWindowW : 1024,
-			fallbackWindowH : 768,
-			windowWidth : 0, // Define later. Would be this.fallbackWindowW when unable to get the client window info
-			windowHeight : 0, // Define later. Would be this.fallbackWindowW when unable to get the client window info
+			fallbackWindowH : 768,			
+			iframeMaxPercW : 0.45, // The max percentage of the iframe's width could occuppy the window width
+			iframeMinPercW : 0.45 * 0.6,
+			iframeMaxPercH : 0.7, // The max percentage of the iframe's height could occuppy the window height
+			iframeMinPercH : 0.7 * 0.6,
 			windowPadding : 15, // The min space (in px) between the preview box and the window top/bottom
-			iframeMaxW : 0, // Define later. Shall be the window width * 0.45
-			iframeMaxH : 0, // Define later. Shall be the window height * 0.7
-			iframeMinW : 1024 * 0.45 * 0.6,
-			iframeMinH : 768 * 0.7 * 0.6,
 			boxBorderW : 4,
 			box2PtrPadding : 15, // The min space between the preview box's pointer and the preview box top/bottom
 			ptrBorderTopW : 5,
@@ -54,8 +74,8 @@ var previewbox = (function () {
 			validProtocols : ["//", "http://", "https://"]
 		},
 		_settings = {			
-			iframeW : 0, // The #previewbox-iframe width
-			iframeH : 0, // The #previewbox-iframe height
+			iframeW : _CONST.fallbackWindowW * _CONST.iframeMaxPercW, // The #previewbox-iframe wish width. The real size doesn't necessarily obey this value but will dynamically be computed based this wish value.
+			iframeH : _CONST.fallbackWindowH * _CONST.iframeMaxPercH, // The #previewbox-iframe wish height
 			boxBorderColor : "#333", // The border color of the preview box(affecting #previewbox, #previewbox-pointer and #previewbox > h5)
 			boxPadding : 14, // The padding of the preview box(affecting #previewbox)
 			boxShadow : "", // The preview box's box-shadow
@@ -172,7 +192,7 @@ var previewbox = (function () {
 				windowHeight : the height of the client window in px. If unable to find, then -1.
 			}
 		*/
-		_getWindowWH = function () {
+		_getWindowSize = function () {
 		
 			if(window.innerWidth) {
 			
@@ -216,15 +236,50 @@ var previewbox = (function () {
 				windowHeight: -1
 			};
 		},
+		/* Return : <OBJ> {
+				iframeW, iframeH : <NUM> the iframe's width/height
+		   }
+		*/
+		_getIFrameSize = function () {
+		
+			var c = _getWindowSize();
+			
+			if (c.windowWidth > 0 || c.windowHeight > 0) {
+			
+				c.iMaxW = c.windowWidth * _CONST.iframeMaxPercW;
+				c.iMinW = c.windowWidth * _CONST.iframeMinPercW;
+				c.iMaxH = c.windowHeight * _CONST.iframeMaxPercH;
+				c.iMinH = c.windowHeight * _CONST.iframeMinPercH;
+				
+				c.iW = (c.iMinW <= _settings.iframeW && _settings.iframeW <= c.iMaxW) ?
+					   _settings.iframeW : (c.iMinW > _settings.iframeW) ?
+					   c.iMinW : c.iMaxW;
+				
+				c.iH = (c.iMinH <= _settings.iframeH && _settings.iframeH <= c.iMaxH) ?
+					   _settings.iframeH : (c.iMinH > _settings.iframeH) ?
+					   c.iMinH : c.iMaxH;
+			
+			} else {
+				c.iW = _CONST.fallbackWindowW * _CONST.iframeMaxPercW;
+				c.iH = _CONST.fallbackWindowH * _CONST.iframeMaxPercH;
+			}
+			
+			return {
+				iframeW : c.iW, iframeH : c.iH
+			};
+		},
 		/*	Return: {
 				width : the total width of the preview box in px.
 				height : the height of the preview box in px.
 			}
 		*/
-		_getPreviewBoxWH = function () {
+		_getPreviewBoxSize = function () {
+			
+			var i = _getIFrameSize();
+			
 			return {
-				width : _settings.iframeW + _CONST.boxBorderW * 2 + _settings.boxPadding * 2,
-				height : _settings.iframeH + _CONST.boxBorderW * 2 + _settings.boxPadding * 2
+				width : i.iframeW + _CONST.boxBorderW * 2 + _settings.boxPadding * 2,
+				height : i.iframeH + _CONST.boxBorderW * 2 + _settings.boxPadding * 2
 			};
 		},
 		/*	Arg:
@@ -232,39 +287,67 @@ var previewbox = (function () {
 				> mousePosY = the vertical coordinate (according to the client area) of the mouse pointer 
 		*/
 		_setStyle = function (mousePosX, mousePosY) {
-			var bTop,
-				bSize = _getPreviewBoxWH();
+		
+			var wSize = _getWindowSize(),
+				ifSize = _getIFrameSize(),
+				bSize = _getPreviewBoxSize();
 			
-			var pTop,
-				pWidth = 2 * _CONST.ptrBorderLeftW,
-				pHozPos = -(2 * _CONST.ptrBorderLeftW + _CONST.boxBorderW - 1),
-				pTopMin = _CONST.box2PtrPadding - _CONST.boxBorderW - _settings.boxPadding;
+			var v = {
+					bTop : NaN,
+					pTop : NaN,
+					bW : bSize.width,
+					bH : bSize.height,
+					ifW : ifSize.iframeW,
+					ifH : ifSize.iframeH,
+					pWidth : 2 * _CONST.ptrBorderLeftW,
+					pHozPos : -(2 * _CONST.ptrBorderLeftW + _CONST.boxBorderW - 1),
+					pTopMin : _CONST.box2PtrPadding - _CONST.boxBorderW - _settings.boxPadding,
+					winW : (wSize.windowWidth > 0) ? wSize.windowWidth : _CONST.fallbackWindowW,
+					winH : (wSize.windowHeight > 0) ? wSize.windowHeight : _CONST.fallbackWindowH
+				};
 				
-			_previewbox.style.borderColor = _previewbox.pointer.style.borderColor = _previewbox.h5.style.color = _settings.boxBorderColor;
+			if (v.winH - mousePosY > v.bH) {
+			// The room in the window bottom is enough for the whole box
+				v.bTop = mousePosY - _CONST.windowPadding * 2;
+			} else {
+				v.bTop = v.winH - v.bH - _CONST.windowPadding;
+			}
+			
+			v.pTop = mousePosY - v.bTop - _CONST.boxBorderW - _settings.boxPadding + _CONST.ptrBorderTopW;
+			if (v.pTop < v.pTopMin) {
+			// The preview box pointer's top value is less than the min limit
+				v.pTop = _CONST.box2PtrPadding;				
+			} else if (v.pTop > v.bH - v.pTopMin) {
+			// The preview box pointer's top value is more than the max limit
+				v.pTop = v.bH - _CONST.box2PtrPadding;				
+			}		
+			
+			for (var p in v) {
+				
+				if (v.hasOwnProperty(p)) {
+				
+					if (isNaN(v[p]) || typeof v[p] != "number") _DBG.error("illegal value for setting style => " + p + " = " + v[p]);
+				}
+			}
+			
+			_previewbox.h5.style.color
+			= _previewbox.style.borderColor
+			= _previewbox.pointer.style.borderColor = _settings.boxBorderColor;
+			
 			_previewbox.style.backgroundImage = _settings.loadingImg;
 			
-			if (_CONST.windowHeight - mousePosY > bSize.height) {
-			// The room in the window bottom is enough for the whole box
-				bTop = mousePosY - _CONST.windowPadding * 2;
-			} else {
-				bTop = _CONST.windowHeight - bSize.height - _CONST.windowPadding;
-			}			
-			_previewbox.style.top = bTop + "px";
+			_previewbox.iframe.style.width = v.ifW + "px";
+			_previewbox.iframe.style.height = v.ifH + "px";
 			
-			pTop = mousePosY - bTop - _CONST.boxBorderW - _settings.boxPadding + _CONST.ptrBorderTopW;
-			if (pTop < pTopMin) {
-			// The preview box pointer's top value is less than the min limit
-				pTop = _CONST.box2PtrPadding;				
-			} else if (pTop > bSize.height - pTopMin) {
-			// The preview box pointer's top value is more than the max limit
-				pTop = bSize.height - _CONST.box2PtrPadding;				
-			}
-			_previewbox.pointer.style.top = pTop + "px";
+			_previewbox.carpet.style.display = _previewbox.pointer.style.display = "block";
 			
-			if (mousePosX < _CONST.windowWidth / 2) {
+			_previewbox.style.top = v.bTop + "px";
+			_previewbox.pointer.style.top = v.pTop + "px";
+			
+			if (mousePosX < v.winW / 2) {
 			// The mouse is at the left half side of the window
-				_previewbox.style.left = (mousePosX + pWidth/2) + "px";
-				_previewbox.pointer.style.left = pHozPos + "px";
+				_previewbox.style.left = (mousePosX + v.pWidth/2) + "px";
+				_previewbox.pointer.style.left = v.pHozPos + "px";
 				_previewbox.pointer.style.right = "";
 				_previewbox.pointer.style.borderTopColor = "transparent";
 				_previewbox.pointer.style.borderBottomColor = "transparent";
@@ -272,19 +355,16 @@ var previewbox = (function () {
 				
 			} else {
 			// The mouse is at the right half side of the window
-				_previewbox.style.left = (mousePosX - bSize.width - pWidth/2) + "px";
+				_previewbox.style.left = (mousePosX - v.bW - v.pWidth/2) + "px";
 				_previewbox.pointer.style.left = "";
-				_previewbox.pointer.style.right = pHozPos + "px";
+				_previewbox.pointer.style.right = v.pHozPos + "px";
 				_previewbox.pointer.style.borderTopColor = "transparent";
 				_previewbox.pointer.style.borderBottomColor = "transparent";
 				_previewbox.pointer.style.borderRightColor = "transparent";
 			}
-			
-			var carpetW = bSize.width + pWidth,
-				carpetH = bSize.height + pWidth;
-			
-			_previewbox.carpet.style.width = carpetW + "px";
-			_previewbox.carpet.style.height = carpetH + "px";
+						
+			_previewbox.carpet.style.width = (v.bW + v.pWidth) + "px";
+			_previewbox.carpet.style.height = (v.bH + v.pWidth) + "px";
 			
 			if (_settings.boxShadow) {
 				_previewbox.style.oBoxShadow = _settings.boxShadow;
@@ -294,6 +374,12 @@ var previewbox = (function () {
 				_previewbox.style.boxShadow = _settings.boxShadow;
 			}
 		},
+		/*
+		*/
+		_setStyleMobile = function () { // TODO
+			_previewbox.carpet.style.display = _previewbox.pointer.style.display = "none";
+			
+		},
 		/*	Arg:
 				> herf = the href to the preview content
 				> mousePosX = refer to this::_setPos
@@ -302,8 +388,6 @@ var previewbox = (function () {
 		_showBox = function (href, mousePosX, mousePosY) {
 			_setStyle(mousePosX, mousePosY);
 			_previewbox.iframe.src = href;
-			_previewbox.iframe.style.width = _settings.iframeW + "px";
-			_previewbox.iframe.style.height = _settings.iframeH + "px";
 			_previewbox.style.display = "block";
 		},
 		/*
@@ -476,20 +560,10 @@ var previewbox = (function () {
 				_previewbox = _mkPrviewBox(box);
 			}
 
-			// Let's define some constants
-			var c = _getWindowWH();
-			_CONST.windowWidth = (c.windowWidth > 0) ? c.windowWidth : _CONST.fallbackWindowW;
-			_CONST.windowHeight = (c.windowHeight > 0) ? c.windowHeight : _CONST.fallbackWindowH;
-			_CONST.iframeMaxW = _CONST.windowWidth * 0.45;
-			_CONST.iframeMaxH = _CONST.windowHeight * 0.7;
-			publicProps.changeStyles({
-				iframeW : _CONST.iframeMaxW,
-				iframeH : _CONST.iframeMaxH
-			});
-
 			// Search all the <a> elems with our special class and then register all the findings
 			publicProps.regisBySearching();
 		},
+		
 		publicProps = {
 			/*	Arg:
 					> v = string, the sandbox value, refe to the HTML5 sandbox spec
@@ -526,50 +600,50 @@ var previewbox = (function () {
 						  }
 			*/
 			changeStyles : function (styles) {
-				var newStyles = null;			
+			
+				var newStyles = null;
+				
 				if (styles instanceof Object) {
 				
-					if (typeof styles.iframeW == "number") {
-						newStyles = (newStyles instanceof Object) ? newStyles : {};
-						if (_CONST.iframeMinW <= styles.iframeW && styles.iframeW <= _CONST.iframeMaxW) {
-							_settings.iframeW = styles.iframeW;
-						} else if (styles.iframeW < _CONST.iframeMinW) {
-							_settings.iframeW = _CONST.iframeMinW;
-						} else if (styles.iframeW > _CONST.iframeMaxW) {
-							_settings.iframeW = _CONST.iframeMaxW
-						}
-						newStyles.iframeW = _settings.iframeW;
+					if (typeof styles.iframeW == "number" && styles.iframeW > 0) {
+						
+						if (!(newStyles instanceof Object)) newStyles = {};
+						
+						newStyles.iframeW = _settings.iframeW = styles.iframeW;
 					}
 					
-					if (typeof styles.iframeH == "number") {
-						newStyles = (newStyles instanceof Object) ? newStyles : {};
-						if (_CONST.iframeMinH <= styles.iframeH && styles.iframeH <= _CONST.iframeMaxH) {
-							_settings.iframeH = styles.iframeH;
-						} else if (styles.iframeH < _CONST.iframeMinH) {
-							_settings.iframeH = _CONST.iframeMinH;
-						} else if (styles.iframeH > _CONST.iframeMaxH) {
-							_settings.iframeH = _CONST.iframeMaxH
-						}
-						newStyles.iframeH = _settings.iframeH;
+					if (typeof styles.iframeH == "number" && styles.iframeH > 0) {
+						
+						if (!(newStyles instanceof Object)) newStyles = {};
+						
+						newStyles.iframeH = _settings.iframeH = styles.iframeH;
 					}
 					
-					if(typeof styles.boxBorderColor == "string" && styles.boxBorderColor) {
-						newStyles = (newStyles instanceof Object) ? newStyles : {};
+					if (typeof styles.boxBorderColor == "string" && styles.boxBorderColor) {
+						
+						if (!(newStyles instanceof Object)) newStyles = {};
+						
 						newStyles.boxBorderColor = _settings.boxBorderColor = styles.boxBorderColor;
 					}
 					
 					if (typeof styles.boxPadding == "number" && styles.boxPadding > 0) {
-						newStyles = (newStyles instanceof Object) ? newStyles : {};
+						
+						if (!(newStyles instanceof Object)) newStyles = {};
+						
 						newStyles.boxPadding = _settings.boxPadding = styles.boxPadding;
 					}
 					
-					if(typeof styles.loadingImg == "string" && styles.loadingImg) {
-						newStyles = (newStyles instanceof Object) ? newStyles : {};
+					if (typeof styles.loadingImg == "string" && styles.loadingImg) {
+						
+						if (!(newStyles instanceof Object)) newStyles = {};
+						
 						newStyles.loadingImg = _settings.loadingImg = styles.loadingImg;
 					}
 					
-					if(typeof styles.boxShadow == "string" && styles.boxShadow) {
-						newStyles = (newStyles instanceof Object) ? newStyles : {};
+					if (typeof styles.boxShadow == "string" && styles.boxShadow) {
+						
+						if (!(newStyles instanceof Object)) newStyles = {};
+						
 						newStyles.boxShadow = _settings.boxShadow = styles.boxShadow;
 					}
 				}
