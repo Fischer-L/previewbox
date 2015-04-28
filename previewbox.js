@@ -167,20 +167,53 @@ var previewbox = (function () {
 			return is;
 		}
 		/*	Return: {
-				windowWidth : the width of the client window in px. If uable to find, then -1.
-				windowHeight : the height of the client window in px. If uable to find, then -1.
+				windowWidth : the width of the client window in px. If unable to find, then -1.
+				windowHeight : the height of the client window in px. If unable to find, then -1.
 			}
 		*/
 		var _getWindowWH = function () {
+		
 			if(window.innerWidth) {
-				return {windowWidth : window.innerWidth, windowHeight: window.innerHeight};
-			} else if(document.documentElement.clientHeight) {
-				return {windowWidth : document.documentElement.clientWidth, windowHeight : document.documentElement.clientHeight};
-			} else if(document.body.clientHeight) {
-				return {windowWidth : document.body.clientHeight, windowHeight : document.body.clientHeight};
-			} else {
-				return {windowWidth : -1, windowHeight: -1};
+			
+				return {
+					windowWidth : window.innerWidth,
+					windowHeight: window.innerHeight
+				};
+				
+			} else if (document.documentElement.offsetHeight) {
+			
+				return {
+					windowWidth : document.documentElement.offsetWidth, 
+					windowHeight : document.documentElement.offsetHeight
+				};
+				
+			} else if (document.body.offsetHeight) {
+			
+				return {
+					windowWidth : document.body.offsetWidth, 
+					windowHeight : document.body.offsetHeight
+				};
+				
+			} else if (document.documentElement.clientHeight) {
+			
+				return {
+					windowWidth : document.documentElement.clientWidth, 
+					windowHeight : document.documentElement.clientHeight
+				};
+				
+			} else if (document.body.clientHeight) {
+			
+				return {
+					windowWidth : document.body.clientWidth, 
+					windowHeight : document.body.clientHeight
+				};
+				
 			}
+			
+			return {
+				windowWidth : -1,
+				windowHeight: -1
+			};
 		}
 		/*	Return: {
 				width : the total width of the preview box in px.
