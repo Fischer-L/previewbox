@@ -9,31 +9,27 @@
 	
 	<style>
 		#anchorsHolder {
-			width : 100%;
+			width : 90%;
+			margin : 0 auto;
 			display : none;
 		}
 		#anchorsHolder a {
-			position : absolute;
+			padding : 8px;
 			background-color: #6DB4ED;
-			padding: 8px;
+			font-size : 16px;
+			line-height : 2;
 		}
-		.x0 {
-			left : 10%;
+		.aWrp {
+			width : 25%;
+			margin : 4%;
+			float : left;
 		}
-		.x1 {
-			left : 40%;
-		}
-		.x2 {
-			right : 15%;
-		}
-		.y0 {
-			top : 15%;
-		}
-		.y1 {
-			top : 50%;
-		}
-		.y2 {
-			bottom : 15%;
+		@media (max-width : 768px) {
+		
+			.aWrp {
+				width : 90%;
+				margin : 5%;
+			}
 		}
 	</style>
 </head>
@@ -42,15 +38,33 @@
 	<div id="mocha"></div>
 	
 	<div id="anchorsHolder">
-		<a class="test x0 y0 previewbox-anchor" href="http://en.wikipedia.org/wiki/Main_Page">Welcome to Wikipedia</a>
-		<a class="test x0 y1 previewbox-anchor" href="//edition.cnn.com/SHOWBIZ/">CNN Entertainment</a>
-		<a class="test x0 y2" href="//www.reddit.com/">reddit</a>
-		<a class="test x1 y0" href="https://nyse.nyx.com/">New Tour Stock Exchange</a>
-		<a class="test x1 y1" href="//www.imdb.com/">IMDb</a>
-		<a class="test x1 y2" href="http://www.html5rocks.com/en/">HTML5 Rocks</a>
-		<a class="test x2 y0" href="//www.weather.com/">National and Local Weather</a>
-		<a class="test x2 y1 previewbox-anchor" href="http://techcrunch.com/2013/10/05/the-potential-and-pitfalls-of-twitters-mobile-business/">The Potential And Pitfalls Of Twitter’s Mobile Business</a>
-		<a class="test x2 y2" href="http://css-tricks.com/blurry-transparent-header-effect-ios7-css/">Blurry Transparent Header Effect from iOS7 in CSS</a>
+		<div class="aWrp">
+			<a class="test x0 y0 previewbox-anchor" href="http://en.wikipedia.org/wiki/Main_Page">Welcome to Wikipedia</a>
+		</div>
+		<div class="aWrp">
+			<a class="test x0 y1 previewbox-anchor" href="//edition.cnn.com/SHOWBIZ/">CNN Entertainment</a>
+		</div>
+		<div class="aWrp">
+			<a class="test x0 y2" href="//www.reddit.com/">reddit</a>
+		</div>
+		<div class="aWrp">
+			<a class="test x1 y0" href="https://nyse.nyx.com/">New Tour Stock Exchange</a>
+		</div>
+		<div class="aWrp">
+			<a class="test x1 y1" href="//www.imdb.com/">IMDb</a>
+		</div>
+		<div class="aWrp">
+			<a class="test x1 y2" href="http://www.html5rocks.com/en/">HTML5 Rocks</a>
+		</div>
+		<div class="aWrp">
+			<a class="test x2 y0" href="//www.weather.com/">National and Local Weather</a>
+		</div>
+		<div class="aWrp">
+			<a class="test x2 y1 previewbox-anchor" href="http://techcrunch.com/2013/10/05/the-potential-and-pitfalls-of-twitters-mobile-business/">The Potential And Pitfalls Of Twitter’s Mobile Business</a>
+		</div>
+		<div class="aWrp">
+			<a class="test x2 y2" href="http://css-tricks.com/blurry-transparent-header-effect-ios7-css/">Blurry Transparent Header Effect from iOS7 in CSS</a>
+		</div>
 	</div>
 	
 	<script src="previewbox.js"></script>
@@ -59,7 +73,7 @@
 	<script>
 		var mochaTest = {
 			
-				flag_run_mocha_tests : 1,
+				flag_run_mocha_tests : 0,
 				
 				flag_state_pass : "passed",
 				
