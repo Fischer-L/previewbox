@@ -120,7 +120,7 @@ var previewbox = (function () {
 		})({}),
 		_settings = {
 			loadingImg : "", // The backgournd image used when loading
-			boxBorderColor : "#333", // The border color of the preview box(affecting #previewbox, #previewbox-pointer and #previewbox > h5)
+			boxBorderColor : "#333", // The border color of the preview box
 			iframeW : _CONST.fallbackWindowW * _CONST.iframeMaxPercW, // The #previewbox-iframe wish width. The real size doesn't necessarily obey this value but will dynamically be computed based this wish value.
 			iframeH : _CONST.fallbackWindowH * _CONST.iframeMaxPercH, // The #previewbox-iframe wish height
 			boxPadding : 14, // The padding of the preview box(affecting #previewbox)
@@ -333,8 +333,8 @@ var previewbox = (function () {
 		*/
 		_setStyle = function () {
 			
-			  _previewbox.h5.style.color
-			= _previewbox.style.borderColor
+			  _previewbox.style.color
+			= _previewbox.hintxt.style.color
 			= _previewbox.pointer.style.borderColor
 			= _previewbox.mobileBar.style.backgroundColor = _settings.boxBorderColor;
 			
@@ -344,6 +344,10 @@ var previewbox = (function () {
 			   _previewbox.carpet.style.display
 			= _previewbox.pointer.style.display
 			= _previewbox.mobileBar.style.display = "none";
+			
+			// Clear first then set later
+			  _previewbox.hintxt.style.left
+			= _previewbox.hintxt.style.right = "";
 		},
 		/*	Arg:
 				> mousePosX = the horizontal coordinate (according to the client area) of the mouse pointer
@@ -360,8 +364,11 @@ var previewbox = (function () {
 					pTop : NaN,
 					bW : bSize.width,
 					bH : bSize.height,
+					bBorderW : _CONST.boxBorderW,
+					bPadding : _settings.boxPadding,
 					ifW : ifSize.iframeW,
 					ifH : ifSize.iframeH,
+					fontSize : _CONST.boxFontSize,
 					pWidth : 2 * _CONST.ptrBorderLeftW,
 					pHozPos : -(2 * _CONST.ptrBorderLeftW + _CONST.boxBorderW - 1),
 					pTopMin : _CONST.box2PtrPadding - _CONST.boxBorderW - _settings.boxPadding,
@@ -398,16 +405,20 @@ var previewbox = (function () {
 			_previewbox.style.top = v.bTop + "px";
 			_previewbox.style.overflow = "visible";
 			_previewbox.style.boxSize = "content-box";
-			_previewbox.style.borderWidth = _CONST.boxBorderW + 'px';
-			_previewbox.style.padding = _settings.boxPadding + "px";			
+			_previewbox.style.padding = v.bPadding + "px";
+			_previewbox.style.borderWidth = v.bBorderW + 'px';	
 			_previewbox.style.borderTopWidth = _previewbox.style.borderWidth;
 			
-			_previewbox.iframe.style.top = 0;
+			_previewbox.iframe.style.top = "0";
 			_previewbox.iframe.style.width = v.ifW + "px";
 			_previewbox.iframe.style.height = v.ifH + "px";
 						
 			_previewbox.carpet.style.width = (v.bW + v.pWidth) + "px";
 			_previewbox.carpet.style.height = (v.bH + v.pWidth) + "px";
+			
+			_previewbox.hintxt.style.top = "0";
+			_previewbox.hintxt.style.left = "4px";
+			_previewbox.hintxt.style.fontSize = v.fontSize + 'px';
 			
 			_previewbox.pointer.style.top = v.pTop + "px";
 			
@@ -445,12 +456,14 @@ var previewbox = (function () {
 		*/
 		_setStyleMobile = function () { // TODO
 			
-			var v = {					
+			var v = {
 					ifTop : _CONST.mobileBarH,
-					bPadding : _settings.boxPadding / 2
+					hTop : _CONST.mobileBarH + 2,
+					bPadding : _settings.boxPadding / 2,
+					fontSize : _CONST.mobileBoxFontSize
 				};
 			
-			if (_dbg.isDBG()) {
+			if (_dbg.isDBG()) { console.log(v.fontSize); // To Del
 			
 				for (var p in v) {
 					
@@ -465,6 +478,10 @@ var previewbox = (function () {
 			_previewbox.style.padding = v.bPadding + "px";
 			_previewbox.style.borderWidth = _CONST.mobileBoxBorderW + 'px';
 			_previewbox.style.borderTopWidth = "0";
+			
+			_previewbox.hintxt.style.right = "6px";
+			_previewbox.hintxt.style.top = v.hTop + "px";
+			_previewbox.hintxt.style.fontSize = v.fontSize + 'px';
 			
 			_previewbox.mobileBar.style.display = "block";
 			
@@ -485,7 +502,7 @@ var previewbox = (function () {
 		*/
 		_showBox = function (href, mousePosX, mousePosY) {
 			
-if (_dbg.isDBG() && 1) { // To Del
+if (_dbg.isDBG() && 0) { // To Del
 
 	_setStyle();
 	_setStyleMobile();
@@ -560,13 +577,17 @@ if (_dbg.isDBG() && 1) { // To Del
 															     // display: when at the mobile mode ? none : block
 							+									 '"'
 							+'></div>'
-						    +'<h5 style="margin: 0;'
+						    +'<h5 id="previewbox-hintxt"' 
+							+    'style="padding: 2px 4px;'
+							+           'margin: 0;'
+							+	        'background-color: #fff;'
 							+	   	    'position: absolute;'
 							+			'z-index: 4;'
-							+	        'top: 0px;'
-							+	        'left: 2px;'
-							+	        'font-size:' + _CONST.boxFontSize + 'px;'
-							+	        'background-color: #fff;'
+										// top: when at the mobile mode ? the #previewbox-mobileBar height + 2 : 0
+										// left: when at the mobile mode ? null : 6px
+										// right: when at the mobile mode ? 6px : null
+										// color: set dynamically the same as the previewbox's border color
+										// font-size: set dynamically based on the mobile & PC mode
 							+	        '"'
 							+'>Preview</h5>'
 							+'<div id="previewbox-mobileBar"' // TODO
@@ -575,11 +596,11 @@ if (_dbg.isDBG() && 1) { // To Del
 							+			 'margin: 0;'
 							+			 'line-height:' + _CONST.mobileBarH + 'px;'
 							+			 'font-size:' + _CONST.mobileBoxFontSize + 'px;'
+							+	         'color:' + _settings.mobileBarColor + ";"
 							+	   	     'position: absolute;'
 							+			 'z-index: 4;'
 							+	         'top: 0;'
-							+	         'left: 0;'
-							+	         'color:' + _settings.mobileBarColor
+							+	         'left: 0;'							
 										 // background-color: set dynamically the same as the previewbox's border color
 										 // display: when at the mobile mode ? block : none
 							+	  '"'
@@ -592,7 +613,7 @@ if (_dbg.isDBG() && 1) { // To Del
 							+                 'overflow: hidden;'
 							+                 'text-overflow: ellipsis;'
 							+                 'white-space: nowrap;'
-							+	              'color:' + _settings.mobileBarColor
+							+	              'color:' + _settings.mobileBarColor + ";"
 							+		   '"'
 							+		'>TODO : Set to the previewed link text</a>'
 							+		'<div id="previewbox-mobileBar-closeBtn"'
@@ -603,7 +624,7 @@ if (_dbg.isDBG() && 1) { // To Del
 							+			 '"'
 							+		'>'
 							+				'<div style="border-style: solid;'
-							+							'border-width: 1.5px '+ (_CONST.mobileBarH * 0.22) + 'px;'
+							+							'border-width: 1.6px '+ (_CONST.mobileBarH * 0.22) + 'px;'
 							+							'border-radius: 2px;'
 							+							'position: absolute;'
 							+							'top: 50%;'
@@ -612,7 +633,7 @@ if (_dbg.isDBG() && 1) { // To Del
 							+							'"'
 							+				'></div>'
 							+				'<div style="border-style: solid;'
-							+							'border-width: 1.5px '+ (_CONST.mobileBarH * 0.22) + 'px;'
+							+							'border-width: 1.6px '+ (_CONST.mobileBarH * 0.22) + 'px;'
 							+							'border-radius: 2px;'
 							+							'position: absolute;'
 							+							'top: 50%;'
@@ -631,7 +652,7 @@ if (_dbg.isDBG() && 1) { // To Del
 							+				'"'
 							+'></iframe>';
 							
-			_previewbox.h5 = _previewbox.querySelector("h5");
+			_previewbox.hintxt = _previewbox.querySelector("#previewbox-hintxt");
 			_previewbox.carpet = _previewbox.querySelector("#previewbox-carpet");
 			_previewbox.iframe = _previewbox.querySelector("#previewbox-iframe");
 			_previewbox.pointer = _previewbox.querySelector("#previewbox-pointer");
