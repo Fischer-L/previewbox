@@ -112,19 +112,22 @@ var previewbox = (function () {
 			c.ptrBorderLeftW = 16; // in px
 			
 			// For the mobile mode
-			c.mobileBarH = c.boxFontSize * 3;
+			c.mobileBoxBorderW = 6; // in px
+			c.mobileBoxFontSize = c.boxFontSize * 0.9;
+			c.mobileBarH = c.mobileBoxFontSize * 4;
 			
 			return c;
 		})({}),
 		_settings = {
 			loadingImg : "", // The backgournd image used when loading
 			boxBorderColor : "#333", // The border color of the preview box(affecting #previewbox, #previewbox-pointer and #previewbox > h5)
-			
-			// For the PC mode
 			iframeW : _CONST.fallbackWindowW * _CONST.iframeMaxPercW, // The #previewbox-iframe wish width. The real size doesn't necessarily obey this value but will dynamically be computed based this wish value.
 			iframeH : _CONST.fallbackWindowH * _CONST.iframeMaxPercH, // The #previewbox-iframe wish height
 			boxPadding : 14, // The padding of the preview box(affecting #previewbox)
 			boxShadow : "", // The preview box's box-shadow
+			
+			// For the mobile mode
+			mobileBarColor : "#edeeef",
 			
 			"just for ending" : undefined
 		},
@@ -395,7 +398,8 @@ var previewbox = (function () {
 			_previewbox.style.top = v.bTop + "px";
 			_previewbox.style.overflow = "visible";
 			_previewbox.style.boxSize = "content-box";
-			_previewbox.style.padding = _settings.boxPadding + "px";
+			_previewbox.style.borderWidth = _CONST.boxBorderW + 'px';
+			_previewbox.style.padding = _settings.boxPadding + "px";			
 			_previewbox.style.borderTopWidth = _previewbox.style.borderWidth;
 			
 			_previewbox.iframe.style.top = 0;
@@ -457,9 +461,10 @@ var previewbox = (function () {
 			}
 			
 			_previewbox.style.overflow = "hidden";
-			_previewbox.style.borderTopWidth = "0";
 			_previewbox.style.boxSizing = "border-box";
 			_previewbox.style.padding = v.bPadding + "px";
+			_previewbox.style.borderWidth = _CONST.mobileBoxBorderW + 'px';
+			_previewbox.style.borderTopWidth = "0";
 			
 			_previewbox.mobileBar.style.display = "block";
 			
@@ -481,8 +486,6 @@ var previewbox = (function () {
 		_showBox = function (href, mousePosX, mousePosY) {
 			
 if (_dbg.isDBG() && 1) { // To Del
-
-	 _settings.boxBorderColor = "red";
 
 	_setStyle();
 	_setStyleMobile();
@@ -516,7 +519,7 @@ if (_dbg.isDBG() && 1) { // To Del
 			div.style.display = "none";
 			// div.style.width = div.style.height = when at the mobile mode ? 100% : computed dynamically
 			// div.style.padding = when at the mobile mode ? set to 50% in the PC mode dynamically : set dynamically
-			div.style.borderWidth = _CONST.boxBorderW + 'px';
+			// div.style.borderWidth = set dynamically based on the mobile & PC mode
 			div.style.borderStyle = 'solid';
 			// div.style.borderColor = set dynamically
 			// div.style.borderTopWidth = when at the mobile mode ? 0 : borderWidth;
@@ -571,16 +574,53 @@ if (_dbg.isDBG() && 1) { // To Del
 							+			 'height:' + _CONST.mobileBarH + 'px;'
 							+			 'margin: 0;'
 							+			 'line-height:' + _CONST.mobileBarH + 'px;'
-							+			 'font-size:' + _CONST.boxFontSize + 'px;'
+							+			 'font-size:' + _CONST.mobileBoxFontSize + 'px;'
 							+	   	     'position: absolute;'
 							+			 'z-index: 4;'
 							+	         'top: 0;'
 							+	         'left: 0;'
+							+	         'color:' + _settings.mobileBarColor
 										 // background-color: set dynamically the same as the previewbox's border color
 										 // display: when at the mobile mode ? block : none
 							+	  '"'
 							+'>'
-							+		'<a href="#">This is test link</a>'
+							+		'<a id="previewbox-mobileBar-targetLink"'
+							+		   'href="#"' // Set to the link being previewed
+							+		   'style="width: 66%;'
+							+		          'margin-left:' + _CONST.mobileBoxBorderW + 'px;'
+							+                 'display: inline-block;'
+							+                 'overflow: hidden;'
+							+                 'text-overflow: ellipsis;'
+							+                 'white-space: nowrap;'
+							+	              'color:' + _settings.mobileBarColor
+							+		   '"'
+							+		'>TODO : Set to the previewed link text</a>'
+							+		'<div id="previewbox-mobileBar-closeBtn"'
+							+			 'style="width: 48px;'
+							+			        'height:' + _CONST.mobileBarH + 'px;'
+							+			        'float: right;'
+							+			        'position: relative;'
+							+			 '"'
+							+		'>'
+							+				'<div style="border-style: solid;'
+							+							'border-width: 1.5px '+ (_CONST.mobileBarH * 0.22) + 'px;'
+							+							'border-radius: 2px;'
+							+							'position: absolute;'
+							+							'top: 50%;'
+							+							'left: 50%;'
+							+							'transform: translateY(-50%) translateX(-50%) rotate(45deg);'
+							+							'"'
+							+				'></div>'
+							+				'<div style="border-style: solid;'
+							+							'border-width: 1.5px '+ (_CONST.mobileBarH * 0.22) + 'px;'
+							+							'border-radius: 2px;'
+							+							'position: absolute;'
+							+							'top: 50%;'
+							+							'left: 50%;'
+							+							'transform: translateY(-50%) translateX(-50%) rotate(-45deg);'
+							+							'"'
+							+				'></div>'
+							+		'</div>'
 							+'</div>'
 						    +'<iframe id="previewbox-iframe" frameborder="0" sandbox="allow-scripts"'
 							+        'style="border: none;'
@@ -596,6 +636,7 @@ if (_dbg.isDBG() && 1) { // To Del
 			_previewbox.iframe = _previewbox.querySelector("#previewbox-iframe");
 			_previewbox.pointer = _previewbox.querySelector("#previewbox-pointer");
 			_previewbox.mobileBar = _previewbox.querySelector("#previewbox-mobileBar");
+			_previewbox.mobileBar.targetLink = _previewbox.querySelector("#previewbox-mobileBar-targetLink");
 			
 			
 			_addEvent(_previewbox.iframe, "load", function () {
