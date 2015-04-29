@@ -7,7 +7,7 @@ var previewbox = (function () {
 	"use strict";
 /*	Properties:
 		[ Private ]
-		> _DBG = one debug control
+		> _dbg = one debug control
 		> _CONST = an obj holding the constants
 		> _settings = an obj holding the settins on the preview box. The preview box would work based on these settings dyamically.
 		> _previewbox = an obj, the preview box
@@ -22,7 +22,7 @@ var previewbox = (function () {
 		> _getWindowSize : Get the client window width and height
 		> _getIFrameSize : Get the iframe width and height
 		> _getPreviewBoxSize : Get the preview box total width and height(including the border and padding)
-		> _setStyle : Set up the preview box style for showing up
+		> _setStyle : Set up the preview box style for showing up at the PC mode
 		> _showBox : Show the preview box
 		> _hideBox : Hide the preview box
 		> _mkPrviewBox : Make one preview box
@@ -41,7 +41,7 @@ var previewbox = (function () {
 				> isDBG : Tell if under the debug mode
 				> error : Log error to console
 		*/
-		_DBG = (function () {
+		_dbg = (function () {
 				
 			return {
 				/*	Return:
@@ -57,21 +57,29 @@ var previewbox = (function () {
 			}
 		})(),
 		_CONST = {
+			validProtocols : ["//", "http://", "https://"],
+			
 			boxID : "previewbox",
 			anchorClass : "previewbox-anchor",
-			fallbackWindowW : 1024,
-			fallbackWindowH : 768,			
-			iframeMaxPercW : 0.45, // The max percentage of the iframe's width could occuppy the window width
+			
+			fallbackWindowW : 1024, // in px
+			fallbackWindowH : 768, // in px
+						
+			boxHiddenPosTop : "-10000px",
+			boxHiddenPosLeft : "-10000px",
+			
+			// For the PC mode
+			boxBorderW : 4, // in px
+			iframeMaxPercW : 0.45, // The max proportion of the iframe's width could occuppy the window width
 			iframeMinPercW : 0.45 * 0.6,
-			iframeMaxPercH : 0.7, // The max percentage of the iframe's height could occuppy the window height
+			iframeMaxPercH : 0.7, // The max proportion of the iframe's height could occuppy the window height
 			iframeMinPercH : 0.7 * 0.6,
-			windowPadding : 15, // The min space (in px) between the preview box and the window top/bottom
-			boxBorderW : 4,
-			box2PtrPadding : 15, // The min space between the preview box's pointer and the preview box top/bottom
-			ptrBorderTopW : 5,
-			ptrBorderLeftW : 16,
-			dequeue : "dequeue",
-			validProtocols : ["//", "http://", "https://"]
+			windowPadding : 15, // in px; The min space between the preview box and the window top/bottom
+			box2PtrPadding : 15, // in px; The min space between the preview box's pointer and the preview box top/bottom
+			ptrBorderTopW : 5, // in px
+			ptrBorderLeftW : 16, // in px
+			
+			"just for ending" : undefined
 		},
 		_settings = {			
 			iframeW : _CONST.fallbackWindowW * _CONST.iframeMaxPercW, // The #previewbox-iframe wish width. The real size doesn't necessarily obey this value but will dynamically be computed based this wish value.
@@ -322,27 +330,35 @@ var previewbox = (function () {
 				v.pTop = v.bH - _CONST.box2PtrPadding;				
 			}		
 			
-			for (var p in v) {
-				
-				if (v.hasOwnProperty(p)) {
-				
-					if (isNaN(v[p]) || typeof v[p] != "number") _DBG.error("illegal value for setting style => " + p + " = " + v[p]);
+			if (_dbg.isDBG()) {
+			
+				for (var p in v) {
+					
+					if (v.hasOwnProperty(p)) {					
+						if (isNaN(v[p]) || typeof v[p] != "number") _dbg.error("illegal value for setting style => " + p + " = " + v[p]);
+					}
 				}
 			}
 			
-			_previewbox.h5.style.color
-			= _previewbox.style.borderColor
-			= _previewbox.pointer.style.borderColor = _settings.boxBorderColor;
-			
+			_previewbox.style.top = v.bTop + "px";
+			_previewbox.style.padding = _settings.boxPadding + "px";
+			_previewbox.style.borderColor = _settings.boxBorderColor;
 			_previewbox.style.backgroundImage = _settings.loadingImg;
 			
 			_previewbox.iframe.style.width = v.ifW + "px";
 			_previewbox.iframe.style.height = v.ifH + "px";
+						
+			_previewbox.carpet.style.width = (v.bW + v.pWidth) + "px";
+			_previewbox.carpet.style.height = (v.bH + v.pWidth) + "px";
 			
-			_previewbox.carpet.style.display = _previewbox.pointer.style.display = "block";
-			
-			_previewbox.style.top = v.bTop + "px";
 			_previewbox.pointer.style.top = v.pTop + "px";
+			
+			  _previewbox.h5.style.color
+			= _previewbox.style.borderColor
+			= _previewbox.pointer.style.borderColor = _settings.boxBorderColor;
+			
+			  _previewbox.carpet.style.display
+			= _previewbox.pointer.style.display = "block";
 			
 			if (mousePosX < v.winW / 2) {
 			// The mouse is at the left half side of the window
@@ -362,9 +378,6 @@ var previewbox = (function () {
 				_previewbox.pointer.style.borderBottomColor = "transparent";
 				_previewbox.pointer.style.borderRightColor = "transparent";
 			}
-						
-			_previewbox.carpet.style.width = (v.bW + v.pWidth) + "px";
-			_previewbox.carpet.style.height = (v.bH + v.pWidth) + "px";
 			
 			if (_settings.boxShadow) {
 				_previewbox.style.oBoxShadow = _settings.boxShadow;
@@ -395,8 +408,8 @@ var previewbox = (function () {
 		_hideBox = function () {
 			_previewbox.iframe.src = "";
 			_previewbox.display = "none";
-			_previewbox.style.top = "10000px";
-			_previewbox.style.left = "10000px";
+			_previewbox.style.top = _CONST.boxHiddenPosTop;
+			_previewbox.style.left = _CONST.boxHiddenPosLeft;
 		},
 		/*	Arg:
 				> div = one <div> element to be converted into the preview box
@@ -409,48 +422,62 @@ var previewbox = (function () {
 			
 			div.id = _CONST.boxID;
 			div.style.display = "none";
-			div.style.border = _CONST.boxBorderW + 'px solid ' + _settings.boxBorderColor;
-			div.style.padding = _settings.boxPadding + "px";
+			// div.style.padding = set dynamically
+			div.style.borderWidth = _CONST.boxBorderW + 'px';
+			div.style.borderStyle = 'solid';
+			// div.style.borderColor = set dynamically
 			div.style.backgroundColor = "#fff";
-			div.style.backgroundImage = _settings.loadingImg;
+			// div.style.backgroundImage = set dynamically
 			div.style.backgroundPosition = "center center";
 			div.style.backgroundRepeat = "no-repeat";
 			div.style.position = "fixed";
-			div.style.top = "-10000px";
-			div.style.left = "-10000px";
+			div.style.top = _CONST.boxHiddenPosTop;
+			div.style.left = _CONST.boxHiddenPosLeft;
 			div.style.zIndex = 9999999999999;
 			div.innerHTML = '<div id="previewbox-carpet" style="position:absolute;'
-							+									'z-index:1;'
-							+									'top:' + -(_CONST.ptrBorderLeftW) + "px;"
-							+									'left:' + -(_CONST.ptrBorderLeftW) + "px;"
-																/* width: the total width of the box + the total width of the #previewbox-pointer;
-							                                       height: the total height of the box + the total width of the #previewbox-pointer;
-																*/
-							+'"></div>'
-							+'<div id="previewbox-pointer" style="border: 20px solid ' + _settings.boxBorderColor + ';'
-							+									'border-width: ' + _CONST.ptrBorderTopW + 'px ' + _CONST.ptrBorderLeftW + 'px;'
-							+									'position:absolute;'
-							+									'z-index:2;'
-																/* top: refer to this::_setStyle
-																*/
-																/* when at the left of the box
-																   border-left-color: transparent;
-																   left: - (The total width of this + the left border of the box - 1);
-																*/
-																/* when at the right of the box
-																   border-right-color: transparent;
-																   right: - (The total width of this + the right border of the box -1);
-																*/
-							+'"></div>'
-						    +'<iframe id="previewbox-iframe" frameborder="0" sandbox="allow-scripts" style="border: none; position:relative; z-index:3"></iframe>'
+							+								   'z-index:1;'
+							+								   'top:' + -(_CONST.ptrBorderLeftW) + 'px;'
+							+								   'left:' + -(_CONST.ptrBorderLeftW) + 'px;'
+															   // width: the total width of the box + the total width of the #previewbox-pointer;
+							                                   // height: the total height of the box + the total width of the #previewbox-pointer;
+															   // display: when at the mobile mode ? none : block
+							+								   '"'
+							+'></div>'
+							+'<div id="previewbox-pointer" style="border-style: solid;'
+							+									 'border-width: ' + _CONST.ptrBorderTopW + 'px ' + _CONST.ptrBorderLeftW + 'px;'
+																 // border-color: set dynamically the same as the previewbox's border color
+							+									 'position: absolute;'
+							+									 'z-index: 2;'
+																 // top: set dynamically
+																 
+																 // When at the left of the box
+																 // border-left-color: transparent;
+																 // left: - (The total width of this + the left border of the box - 1);
+																 
+																 // When at the right of the box
+																 // border-right-color: transparent;
+																 // right: - (The total width of this + the right border of the box -1);
+																 
+															     // display: when at the mobile mode ? none : block
+							+									 '"'
+							+'></div>'
+						    +'<iframe id="previewbox-iframe" frameborder="0" sandbox="allow-scripts"'
+							+        'style="border: none;'
+							+				'position:relative;'
+							+				'z-index:3;'
+											// width/height: when at the mobile mode ? 100% : computed dynamically
+							+				'"'
+							+'></iframe>'
 						    +'<h5 style="margin: 0;'
-							+	        'color: ' + _settings.boxBorderColor + ';'
 							+	   	    'position:absolute;'
 							+			'z-index:4;'
 							+	        'top:0px;'
 							+	        'left:2px;'
 							+	        'font-size:1em;'
-							+	        'background-color: #fff;">Preview</h5>';
+							+	        'background-color: #fff;'
+								        // color: when at the PC mode, set dynamically the same as the previewbox's border color
+							+	        '"'
+							+'>Preview</h5>';
 							
 			_previewbox.h5 = _previewbox.querySelector("h5");
 			_previewbox.carpet = _previewbox.querySelector("#previewbox-carpet");
