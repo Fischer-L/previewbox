@@ -19,6 +19,7 @@ var previewbox = (function () {
 		> _rmEvent : Do the same thing as removeEventListener and mitigate the IE8 compatibility
 		> _isMouseOut : Check if the mouse is on the previewbox or the anchor <a> element or not
 		> _isHref : Check for the valid href value
+		> _getAppropriateMode : Get the mode appropriate for the current user scenario
 		> _getWindowSize : Get the client window width and height
 		> _getIFrameSizePC : Get the iframe width and height for the PC mode's use
 		> _getPreviewBoxSizePC : Get the preview box total width and height(including the border and padding)  for the PC mode's use
@@ -26,8 +27,8 @@ var previewbox = (function () {
 		> _setStyle : Set up the preview box style for both the PC and mobile mdoe
 		> _setStylePC : Set up the preview box style for showing up for the PC mode
 		> _setStyleMobile : Set up the preview box style for showing up for the mobile mode
-		> _showBox : Show the preview box
-		> _hideBox : Hide the preview box
+		> _showBoxPC : Show the preview box for the PC mode
+		> _hideBoxPC : Hide the preview box for the PC mode
 		> _mkPrviewBox : Make one preview box
 		> _mkPreviewAnchor : Make one preview anchor
 		> _prepPreview : Prepare(Initial) the preview box
@@ -88,6 +89,11 @@ var previewbox = (function () {
 		})(),
 		_CONST = (function (c) {
 			
+			c.modeMobileW = 768; // in px. The width used to seperate the PC & mobile mode
+			
+			c.modePC = "modePC"; // Represent the PC mode
+			c.modeMobile = "modeMobile"; // Represent the mobile mode
+			
 			c.nodeTypeELM = 1; // Element node type
 			
 			c.nodeTypeText = 3; // Text node type
@@ -98,7 +104,7 @@ var previewbox = (function () {
 			c.anchorClass = "previewbox-anchor";
 			
 			c.fallbackWindowW = 1024; // in px
-			c.fallbackWindowH = 768; // in px
+			c.fallbackWindowH = 768; // in px.
 			
 			c.boxFontSize = 16; // in px
 			c.boxHiddenPosTop = "-10000px";
@@ -329,7 +335,7 @@ var previewbox = (function () {
 		},
 		/*	Arg:
 				> leaveFor = the toElement or e.relatedTarget of the onmouseout event, meaning the element for which the mouse leaves
-				> anchor = the <a> element calling this::_showBox
+				> anchor = the <a> element which is the current preview target
 			Return:
 				@ The mouse is still on the previewbox or the anchor <a> element: false
 				@ The mouse is not on the previewbox or the anchor <a> element: true
@@ -370,6 +376,20 @@ var previewbox = (function () {
 				}
 			}
 			return is;
+		},
+		/*	Return:
+				> _CONST.modePC or _CONST.modeMobile
+		*/
+		_getAppropriateMode = function () { if (_dbg.isDBG() && 1) return _CONST.modeMobile; // To Del
+
+			if (_getIEVersion() <= 9) return _CONST.modePC;
+			
+			// Judge by the userAgent string
+			var ua = window.navigator.userAgent.toLowerCase();				
+			if (ua.search(/mobile|windows phone/) >= 0) return _CONST.modeMobile;
+			
+			// Judge by the window width
+			return (_getWindowSize().windowWidth > _CONST.modeMobileW) ? _CONST.modePC : _CONST.modeMobile;
 		},
 		/*	Return: {
 				windowWidth : the width of the client window in px. If unable to find, then -1.
@@ -603,6 +623,7 @@ var previewbox = (function () {
 				}
 			}
 			
+			_previewbox.style.transition = "";
 			_previewbox.style.top = v.bTop + "px";
 			_previewbox.style.overflow = "visible";
 			_previewbox.style.boxSize = "content-box";
@@ -657,11 +678,6 @@ var previewbox = (function () {
 				<ELM> previewAnchor = the <a> element currently being the preview target
 		*/
 		_setStyleMobile = function (previewAnchor) {
-		// TODO:
-		// * Browser prefix
-		// * Basic close
-		// * Open animation
-		// * Close animation
 			
 			var v = {
 					ifTop : _CONST.mobileBarH,
@@ -706,6 +722,7 @@ var previewbox = (function () {
 			_previewbox.style.padding = v.bPadding + "px";
 			_previewbox.style.borderWidth = _CONST.mobileBoxBorderW + 'px';
 			_previewbox.style.borderTopWidth = "0";
+			_previewbox.style.transition = "width 0.5s, height 0.5s";
 			
 			_previewbox.hintxt.style.right = "6px";
 			_previewbox.hintxt.style.top = v.hTop + "px";
@@ -718,8 +735,6 @@ var previewbox = (function () {
 			
 			_previewbox.iframe.style.top = v.ifTop + "px";
 			
-			_previewbox.style.width =
-			_previewbox.style.height =
 			_previewbox.iframe.style.width =
 			_previewbox.iframe.style.height = "100%";
 			
@@ -728,30 +743,59 @@ var previewbox = (function () {
 		},
 		/*	Arg:
 				<ELM> previewAnchor = the <a> element currently being the preview target
-				> mousePosX, mousePosY = refer to this::_setStylePC
 		*/
-		_showBox = function (previewAnchor, mousePosX, mousePosY) {
-			
-if (_dbg.isDBG() && 1) { // To Del
-
-	_setStyle();
-	_setStyleMobile(previewAnchor);
-	_previewbox.iframe.src = previewAnchor.href;
-	_previewbox.style.display = "block";
-	return;
-}	
-			_setStyle();
-			_setStylePC(mousePosX, mousePosY);
+		_showBox = function (previewAnchor) {
 			_previewbox.iframe.src = previewAnchor.href;
 			_previewbox.style.display = "block";
 		},
+		/*	Arg:
+				<ELM> previewAnchor = the <a> element currently being the preview target
+				> mousePosX, mousePosY = refer to this::_setStylePC
+		*/
+		_showBoxPC = function (previewAnchor, mousePosX, mousePosY) {
+			_setStyle();
+			_setStylePC(mousePosX, mousePosY);
+			_showBox(previewAnchor);
+		},
+		/*	Arg:
+				<ELM> previewAnchor = the <a> element currently being the preview target
+		*/
+		_showBoxMobile = function (previewAnchor) {
+			
+			_setStyle();
+			_setStyleMobile(previewAnchor);
+			
+			_previewbox.style.width =
+			_previewbox.style.height = "0%";
+			
+			_showBox(previewAnchor);
+			
+			// Delay for the open transition
+			setTimeout(function () {
+				_previewbox.style.width =
+				_previewbox.style.height = "100%";			
+			}, 80);
+		},
 		/*
 		*/
-		_hideBox = function () { if (_dbg.isDBG()) return; // To Del
+		_hideBox = function () {
 			_previewbox.iframe.src = "";
-			_previewbox.display = "none";
+			_previewbox.style.display = "none";
 			_previewbox.style.top = _CONST.boxHiddenPosTop;
 			_previewbox.style.left = _CONST.boxHiddenPosLeft;
+		},
+		_hideBoxPC = _hideBox,
+		/*
+		*/
+		_hideBoxMobile = function () {
+			
+			_previewbox.style.width =
+			_previewbox.style.height = "0%";			
+			
+			// Delay for the close transition
+			setTimeout(function () {
+				_hideBox();
+			}, 500);			
 		},
 		/*	Arg:
 				<ELM> div = one <div> element to be converted into the preview box
@@ -765,6 +809,7 @@ if (_dbg.isDBG() && 1) { // To Del
 			div.id = _CONST.boxID;
 			div.style.display = "none";
 			// div.style.width = div.style.height = when at the mobile mode ? 100% : computed dynamically
+			// div.style.transition =  when at the mobile mode ? transition on width & height : null
 			// div.style.padding = when at the mobile mode ? set to 50% in the PC mode dynamically : set dynamically
 			// div.style.borderWidth = set dynamically based on the mobile & PC mode
 			div.style.borderStyle = 'solid';
@@ -775,10 +820,10 @@ if (_dbg.isDBG() && 1) { // To Del
 			// div.style.backgroundImage = set dynamically
 			div.style.backgroundPosition = "center center";
 			div.style.backgroundRepeat = "no-repeat";
-			// div.style.overflow = when at the mobile mode ?  hidden : visible;
+			// div.style.overflow = when at the mobile mode ? hidden : visible;
 			div.style.position = "fixed";
-			div.style.top = _CONST.boxHiddenPosTop;
-			div.style.left = _CONST.boxHiddenPosLeft;
+			div.style.top = _CONST.boxHiddenPosTop; // when at the mobile mode ? 0 : set dynamically based on the mouse position
+			div.style.left = _CONST.boxHiddenPosLeft; // when at the mobile mode ? 0 : set dynamically based on the mouse position
 			div.style.zIndex = 9999999999999;
 			div.innerHTML = '<div id="previewbox-carpet" style="position:absolute;'
 							+								   'z-index:1;'
@@ -894,7 +939,10 @@ if (_dbg.isDBG() && 1) { // To Del
 			_previewbox.pointer = _previewbox.querySelector("#previewbox-pointer");
 			_previewbox.mobileBar = _previewbox.querySelector("#previewbox-mobileBar");
 			_previewbox.mobileBar.targetLink = _previewbox.querySelector("#previewbox-mobileBar-targetLink");
-			
+						
+			_addEvent(_previewbox.querySelector("#previewbox-mobileBar-closeBtn"), "click", function (e) {
+				_hideBoxMobile();
+			});
 			
 			_addEvent(_previewbox.iframe, "load", function () {
 				_previewbox.style.backgroundImage = "";
@@ -915,9 +963,8 @@ if (_dbg.isDBG() && 1) { // To Del
 						> anchorType = a number indicating the type of anchor, current only 0 is defined. We use this property to know whether one <a> element had been registered before and know its type (Maybe in the future we will have different featured anchors).
 					* Methods:
 						[ Private ]
-						> _a_startDetectMouseOut = function (e) : Start detecting if the mouse is out of the preview box
-						> _a_callShowBox = function (e) : The event listener calling the _showBox to work
-						> _a_callHideBox = function (e) : The event listener calling the _hideBox to work						
+						> _a_callShowBox = function (e) : The event listener listening for the event to show the preview box
+						> _a_callHideBox = function (e) : The event listener listening for the event to hide the preview box					
 				@ NG: <*> Just return what passed in
 		*/
 		_mkPreviewAnchor = function (a) {
@@ -926,11 +973,11 @@ if (_dbg.isDBG() && 1) { // To Del
 			) {
 			
 				var
-				_a_startDetectMouseOut = function () {
+				_a_obeserveMouseOut = function (callbackWhenOut) {
 					
-					function detectOutOfBox () {
+					function startObeserving () {
 					
-						function _a_detectMouseOut (e) {
+						function judgeMouseOut (e) {
 						
 							e = _normalizeEvent(e);
 
@@ -939,18 +986,17 @@ if (_dbg.isDBG() && 1) { // To Del
 							if (_isMouseOut(leaveFor, a)) {
 
 								// IMPORTANT: Remove and wait for the next time
-								_rmEvent(_previewbox.carpet, "mouseout", _a_detectMouseOut);
+								_rmEvent(_previewbox.carpet, "mouseout", judgeMouseOut);
 								
-								_addEvent(a, "mouseover", _a_callShowBox);
-								_hideBox();
+								callbackWhenOut();
 							}
 						};
 							
-						_rmEvent(_previewbox.iframe, "mouseover", detectOutOfBox);
-						_addEvent(_previewbox.carpet, "mouseout", _a_detectMouseOut);
+						_rmEvent(_previewbox.iframe, "mouseover", startObeserving);
+						_addEvent(_previewbox.carpet, "mouseout", judgeMouseOut);
 					};
 					
-					_addEvent(_previewbox.iframe, "mouseover", detectOutOfBox);
+					_addEvent(_previewbox.iframe, "mouseover", startObeserving);
 				},
 				
 				_a_callShowBox = function (e) {
@@ -959,12 +1005,30 @@ if (_dbg.isDBG() && 1) { // To Del
 					
 					if (_isHref(a.href)) {
 					
-						// This is important. It prevents the preview box from being redrawn repeatedly while onmouseover
-						_rmEvent(a, "mouseover", _a_callShowBox);
+						switch (_getAppropriateMode()) {
 						
-						_showBox(a, e.clientX, e.clientY);
+							case _CONST.modePC:
+					
+								// This is important. It prevents the preview box from being redrawn repeatedly while onmouseover
+								_rmEvent(a, "mouseover", _a_callShowBox);
 
-						_a_startDetectMouseOut();
+								_a_obeserveMouseOut(function () {
+								
+									_addEvent(a, "mouseover", _a_callShowBox);
+									
+									_hideBoxPC();
+								});
+								
+								_showBoxPC(a, e.clientX, e.clientY);
+							
+							break;
+						
+							case _CONST.modeMobile:
+								
+								_showBoxMobile(a);
+								
+							break;
+						}
 					}
 				},
 				
@@ -976,7 +1040,7 @@ if (_dbg.isDBG() && 1) { // To Del
 
 					if (_isMouseOut(leaveFor, a)) {
 						_addEvent(a, "mouseover", _a_callShowBox);
-						_hideBox();
+						_hideBoxPC();
 
 					}
 				};
