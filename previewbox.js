@@ -22,6 +22,7 @@ var previewbox = (function () {
 		> _getWindowSize : Get the client window width and height
 		> _getIFrameSize : Get the iframe width and height
 		> _getPreviewBoxSize : Get the preview box total width and height(including the border and padding)
+		> _getMobileBarTargetLinkTitle : Get the title for the mobile bar's target link' title
 		> _setStyle : Set up the preview box style for both the PC and mobile mdoe
 		> _setStylePC : Set up the preview box style for showing up at the PC mode
 		> _showBox : Show the preview box
@@ -85,6 +86,10 @@ var previewbox = (function () {
 			}
 		})(),
 		_CONST = (function (c) {
+			
+			c.nodeTypeELM = 1; // Element node type
+			
+			c.nodeTypeText = 3; // Text node type
 			
 			c.validProtocols = ["//", "http://", "https://"];
 			
@@ -172,6 +177,9 @@ var previewbox = (function () {
 				"#previewbox-iframe/width" : [ _CONST.fallbackWindowW * _CONST.iframeMaxPercW, __commonTypeChker.isPositiveNUM ],
 				// <NUM> in px. The iframe wish height
 				"#previewbox-iframe/height" : [ _CONST.fallbackWindowH * _CONST.iframeMaxPercH, __commonTypeChker.isPositiveNUM ],
+				
+				// <STR> The inner text value of the #previewbox-hintxt
+				"#previewbox-hintxt/value" : [ "Preview", __commonTypeChker.isNonEmptySTR ],
 				
 				// -- For the mobile mode -- //
 				
@@ -461,6 +469,64 @@ var previewbox = (function () {
 				height : i.iframeH + j
 			};
 		},
+		/*	Arg:
+				<ELM> root = the <a> element being the preview target
+			Return:
+				@ OK: <STR> the appropriate title extracted from the target <a>
+				@ NG: null
+		*/
+		_getMobileBarTargetLinkTitle = function (root) {
+		
+			try {
+				
+				// The traversing depth; Max is 3.
+				var depth = (typeof arguments[1] == "number") ? arguments[1] : 3;
+				
+				if (root.hasChildNodes() && depth > 0) {
+					
+					var i,
+						v,
+						ns = root.childNodes;
+					
+					for (i = 0; i < ns.length; ++i) {
+						
+						v = ns[i];
+						
+						switch (v.nodeType) {
+							
+							case _CONST.nodeTypeText:
+								
+								v = v.nodeValue.trim();
+								
+								if (v) return v;
+								
+							break;
+							
+							case _CONST.nodeTypeELM:								
+								
+								var tags = [ // The elements into which we are willing to dig
+									"ariticle", "b", "bdi", "bdo", "blockquote", "button", "caption", "cite", "code", "dd", "del", "dfn", "div", "di", "dt", "em", "figcaption", "figure", "h1", "h2", "h3", "h4", "h5", "h6", "i", "ins", "kbd", "lable", "legend", "main", "mark", "p", "pre", "q", "s", "section", "small", "span", "strong", "sub", "summary", "sup", "td", "th", "time", "tr", "u", "var"
+								];
+								
+								if (tags.indexOf(v.tagName.toLowerCase()) >= 0) {
+									
+									v = _getMobileBarTargetLinkTitle(v, depth - 1);
+
+									if (v) return v;
+								}
+								
+							break;
+						}
+					}
+					
+				}
+			
+			} catch (e) {				
+				_dbg.error("Error on _getMobileBarTargetLinkTitle --> " + e);				
+			}
+			
+			return null;
+		},
 		/*
 		*/
 		_setStyle = function () {
@@ -472,6 +538,8 @@ var previewbox = (function () {
 			
 			_previewbox.style.backgroundImage = _settings.get("loadingImg");
 			
+			_previewbox.hintxt.innerHTML = _settings.get("#previewbox-hintxt/value");
+			
 			// Hide first then show later
 			   _previewbox.carpet.style.display
 			= _previewbox.pointer.style.display
@@ -482,8 +550,8 @@ var previewbox = (function () {
 			= _previewbox.hintxt.style.right = "";
 		},
 		/*	Arg:
-				> mousePosX = the horizontal coordinate (according to the client area) of the mouse pointer
-				> mousePosY = the vertical coordinate (according to the client area) of the mouse pointer 
+				<NUM> mousePosX = the horizontal coordinate (according to the client area) of the mouse pointer
+				<NUM> mousePosY = the vertical coordinate (according to the client area) of the mouse pointer 
 		*/
 		_setStylePC = function (mousePosX, mousePosY) {
 		
@@ -584,23 +652,50 @@ var previewbox = (function () {
 				_previewbox.style.boxShadow = _settings.get("boxShadow");
 			}
 		},
-		/*
+		/*	Arg:
+				<ELM> previewAnchor = the <a> element currently being the preview target
 		*/
-		_setStyleMobile = function () { // TODO
+		_setStyleMobile = function (previewAnchor) {
+		// TODO:
+		// * Browser prefix
+		// * Basic close
+		// * Open animation
+		// * Close animation
 			
 			var v = {
 					ifTop : _CONST.mobileBarH,
 					hTop : _CONST.mobileBarH + 2,
 					bPadding : _settings.get("boxPadding") / 2,
 					fontSize : _CONST.mobileBoxFontSize
+				},
+				s = {
+					aHref : previewAnchor.href,
+					aTitle : _getMobileBarTargetLinkTitle(previewAnchor)
 				};
 			
-			if (_dbg.isDBG()) { console.log(v.fontSize); // To Del
+			if (!s.aTitle) v.aTitle = s.aHref;
+			
+			if (_dbg.isDBG()) {
 			
 				for (var p in v) {
 					
-					if (v.hasOwnProperty(p)) {					
-						if (isNaN(v[p]) || typeof v[p] != "number") _dbg.error("illegal value for setting mobile mode style => " + p + " = " + v[p]);
+					if (v.hasOwnProperty(p)) {
+					
+						if (isNaN(v[p]) || typeof v[p] != "number") {	
+						
+							_dbg.error(_dbg.formaStr("illegal value for setting mobile mode style --> {0} = {1}", p, v[p]));
+						}
+					}
+				}
+			
+				for (var p in s) {
+					
+					if (s.hasOwnProperty(p)) {	
+					
+						if (!s[p] || typeof s[p] != "string") {
+						
+							_dbg.error(_dbg.formaStr("illegal value for setting mobile mode style --> {0} = {1}", p, s[p]));
+						}
 					}
 				}
 			}
@@ -617,34 +712,36 @@ var previewbox = (function () {
 			
 			_previewbox.mobileBar.style.display = "block";
 			
+			_previewbox.mobileBar.targetLink.href = s.aHref;
+			_previewbox.mobileBar.targetLink.innerHTML = s.aTitle;
+			
 			_previewbox.iframe.style.top = v.ifTop + "px";
 			
-			  _previewbox.style.width
-			= _previewbox.style.height
-			= _previewbox.iframe.style.width
-			= _previewbox.iframe.style.height = "100%";
+			_previewbox.style.width =
+			_previewbox.style.height =
+			_previewbox.iframe.style.width =
+			_previewbox.iframe.style.height = "100%";
 			
-			  _previewbox.style.top
-			= _previewbox.style.left = "0";
+			_previewbox.style.top =
+			_previewbox.style.left = "0";
 		},
 		/*	Arg:
-				> herf = the href to the preview content
-				> mousePosX = refer to this::_setPos
-				> mousePosY = refer to this::_setPos
+				<ELM> previewAnchor = the <a> element currently being the preview target
+				> mousePosX, mousePosY = refer to this::_setStylePC
 		*/
-		_showBox = function (href, mousePosX, mousePosY) {
+		_showBox = function (previewAnchor, mousePosX, mousePosY) {
 			
 if (_dbg.isDBG() && 1) { // To Del
 
 	_setStyle();
-	_setStyleMobile();
-	_previewbox.iframe.src = href;
+	_setStyleMobile(previewAnchor);
+	_previewbox.iframe.src = previewAnchor.href;
 	_previewbox.style.display = "block";
 	return;
 }	
 			_setStyle();
 			_setStylePC(mousePosX, mousePosY);
-			_previewbox.iframe.src = href;
+			_previewbox.iframe.src = previewAnchor.href;
 			_previewbox.style.display = "block";
 		},
 		/*
@@ -721,8 +818,10 @@ if (_dbg.isDBG() && 1) { // To Del
 										// color: set dynamically the same as the previewbox's border color
 										// font-size: set dynamically based on the mobile & PC mode
 							+	        '"'
-							+'>Preview</h5>'
-							+'<div id="previewbox-mobileBar"' // TODO
+							+'>'
+							+ 		_settings.get("#previewbox-hintxt/value")
+							+'</h5>'
+							+'<div id="previewbox-mobileBar"'
 							+	  'style="width: 100%;'
 							+			 'height:' + _CONST.mobileBarH + 'px;'
 							+			 'margin: 0;'
@@ -738,7 +837,6 @@ if (_dbg.isDBG() && 1) { // To Del
 							+	  '"'
 							+'>'
 							+		'<a id="previewbox-mobileBar-targetLink"'
-							+		   'href="#"' // Set to the link being previewed
 							+		   'style="width: 66%;'
 							+		          'margin-left:' + _CONST.mobileBoxBorderW + 'px;'
 							+                 'display: inline-block;'
@@ -747,7 +845,10 @@ if (_dbg.isDBG() && 1) { // To Del
 							+                 'white-space: nowrap;'
 							+	              'color:' + _settings.get("mobileBarColor") + ";"
 							+		   '"'
-							+		'>TODO : Set to the previewed link text</a>'
+							+		   'href="#"' // Set to the link being previewed
+							+		'>'
+											// Set the inner value to the previewed link text
+							+		'</a>'
 							+		'<div id="previewbox-mobileBar-closeBtn"'
 							+			 'style="width: 48px;'
 							+			        'height:' + _CONST.mobileBarH + 'px;'
@@ -857,7 +958,7 @@ if (_dbg.isDBG() && 1) { // To Del
 						// This is important. It prevents the preview box from being redrawn repeatedly while onmouseover
 						_rmEvent(a, "mouseover", _a_callShowBox);
 						
-						_showBox(a.href, e.clientX, e.clientY);
+						_showBox(a, e.clientX, e.clientY);
 
 						_a_startDetectMouseOut();
 					}

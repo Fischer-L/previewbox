@@ -1,3 +1,18 @@
+# Version: TBD
+
+# Date: TBD
+
+# Items:
+	> Open to set customized preview hint txt
+	> Open more changable styles
+	
+# Future improvements in consideration:
+	> Support mobile and tablet scenario
+	> Add the method to destory one preview anchor to make the <a> element return back to an normal <a>
+	> Open more styles for change and customization
+		
+-----------------------------------------------
+
 # Version: 0.2.1
 
 # Date: 2015.4.28
