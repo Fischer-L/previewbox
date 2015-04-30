@@ -27,8 +27,12 @@ var previewbox = (function () {
 		> _setStyle : Set up the preview box style for both the PC and mobile mdoe
 		> _setStylePC : Set up the preview box style for showing up for the PC mode
 		> _setStyleMobile : Set up the preview box style for showing up for the mobile mode
+		> _showBox : Show the preview box for both the PC and mobile mdoe
 		> _showBoxPC : Show the preview box for the PC mode
+		> _showBoxMobile : Show the preview box for the mobile mode
+		> _hideBox : Hide the preview box for both the PC and mobile mdoe
 		> _hideBoxPC : Hide the preview box for the PC mode
+		> _hideBoxMobile : Hide the preview box for the mobile mode
 		> _mkPrviewBox : Make one preview box
 		> _mkPreviewAnchor : Make one preview anchor
 		> _prepPreview : Prepare(Initial) the preview box
@@ -306,6 +310,13 @@ var previewbox = (function () {
 			if (!e) e = window.event;
 			
 			if (!e.target) e.target = e.srcElement || document;
+						
+			e.preventDefault = function () {
+				e.returnValue = false;
+				e.isDefaultPrevented = function returnTrue() { return true; };
+			};
+			
+			e.isDefaultPrevented = function returnFalse() { return false; };
 			
 			return e;
 		},
@@ -795,7 +806,7 @@ var previewbox = (function () {
 			// Delay for the close transition
 			setTimeout(function () {
 				_hideBox();
-			}, 500);			
+			}, 450);			
 		},
 		/*	Arg:
 				<ELM> div = one <div> element to be converted into the preview box
@@ -963,8 +974,10 @@ var previewbox = (function () {
 						> anchorType = a number indicating the type of anchor, current only 0 is defined. We use this property to know whether one <a> element had been registered before and know its type (Maybe in the future we will have different featured anchors).
 					* Methods:
 						[ Private ]
-						> _a_callShowBox = function (e) : The event listener listening for the event to show the preview box
-						> _a_callHideBox = function (e) : The event listener listening for the event to hide the preview box					
+						> _a_obeserveMouseOut : Call this method to obeserveif mouse is out when the preview box is opening
+						> _a_openPreviewPC : The event listener listening for the event to preview link's content for the PC mode
+						> _a_openPreviewMobile : The event listener listening for the event to preview link's content for the mobile mode
+						> _a_closePreviewPC : The event listener listening for the event to stop previewing link's content for the PC mode				
 				@ NG: <*> Just return what passed in
 		*/
 		_mkPreviewAnchor = function (a) {
@@ -973,6 +986,9 @@ var previewbox = (function () {
 			) {
 			
 				var
+				/*	Arg:
+						<FN> callbackWhenOut = callback called when mouse is out
+				*/
 				_a_obeserveMouseOut = function (callbackWhenOut) {
 					
 					function startObeserving () {
@@ -999,7 +1015,7 @@ var previewbox = (function () {
 					_addEvent(_previewbox.iframe, "mouseover", startObeserving);
 				},
 				
-				_a_callShowBox = function (e) {
+				_a_openPreviewPC = function (e) {
 				
 					e = _normalizeEvent(e);
 					
@@ -1010,11 +1026,11 @@ var previewbox = (function () {
 							case _CONST.modePC:
 					
 								// This is important. It prevents the preview box from being redrawn repeatedly while onmouseover
-								_rmEvent(a, "mouseover", _a_callShowBox);
+								_rmEvent(a, "mouseover", _a_openPreviewPC);
 
 								_a_obeserveMouseOut(function () {
 								
-									_addEvent(a, "mouseover", _a_callShowBox);
+									_addEvent(a, "mouseover", _a_openPreviewPC);
 									
 									_hideBoxPC();
 								});
@@ -1023,7 +1039,28 @@ var previewbox = (function () {
 							
 							break;
 						
+							case _CONST.modeMobile:								
+								// Let _a_openPreviewMobile handle								
+							break;
+						}
+					}
+				},
+				
+				_a_openPreviewMobile = function (e) {
+				
+					e = _normalizeEvent(e);
+					
+					if (_isHref(a.href)) {
+					
+						switch (_getAppropriateMode()) {
+						
+							case _CONST.modePC:
+								// Let _a_openPreviewPC handle								
+							break;
+						
 							case _CONST.modeMobile:
+							
+								e.preventDefault();
 								
 								_showBoxMobile(a);
 								
@@ -1032,23 +1069,23 @@ var previewbox = (function () {
 					}
 				},
 				
-				_a_callHideBox = function (e) {
+				_a_closePreviewPC = function (e) {
 			
 					e = _normalizeEvent(e);
 			
 					var leaveFor = e.toElement || e.relatedTarget;
 
 					if (_isMouseOut(leaveFor, a)) {
-						_addEvent(a, "mouseover", _a_callShowBox);
+						_addEvent(a, "mouseover", _a_openPreviewPC);
 						_hideBoxPC();
-
 					}
 				};
 					
 				a.anchorType = 0;
 				
-				_addEvent(a, "mouseover", _a_callShowBox);
-				_addEvent(a, "mouseout", _a_callHideBox);
+				_addEvent(a, "mouseout", _a_closePreviewPC);
+				_addEvent(a, "mouseover", _a_openPreviewPC);
+				_addEvent(a, "click", _a_openPreviewMobile);
 			}
 			return a;
 		},
