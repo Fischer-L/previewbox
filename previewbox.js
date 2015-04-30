@@ -20,11 +20,12 @@ var previewbox = (function () {
 		> _isMouseOut : Check if the mouse is on the previewbox or the anchor <a> element or not
 		> _isHref : Check for the valid href value
 		> _getWindowSize : Get the client window width and height
-		> _getIFrameSize : Get the iframe width and height
-		> _getPreviewBoxSize : Get the preview box total width and height(including the border and padding)
+		> _getIFrameSizePC : Get the iframe width and height for the PC mode's use
+		> _getPreviewBoxSizePC : Get the preview box total width and height(including the border and padding)  for the PC mode's use
 		> _getMobileBarTargetLinkTitle : Get the title for the mobile bar's target link' title
 		> _setStyle : Set up the preview box style for both the PC and mobile mdoe
-		> _setStylePC : Set up the preview box style for showing up at the PC mode
+		> _setStylePC : Set up the preview box style for showing up for the PC mode
+		> _setStyleMobile : Set up the preview box style for showing up for the mobile mode
 		> _showBox : Show the preview box
 		> _hideBox : Hide the preview box
 		> _mkPrviewBox : Make one preview box
@@ -423,7 +424,7 @@ var previewbox = (function () {
 				iframeW, iframeH : <NUM> the iframe's width/height
 		   }
 		*/
-		_getIFrameSize = function () {
+		_getIFrameSizePC = function () {
 		
 			var c = _getWindowSize();
 			
@@ -459,9 +460,9 @@ var previewbox = (function () {
 				height : the height of the preview box in px.
 			}
 		*/
-		_getPreviewBoxSize = function () {
+		_getPreviewBoxSizePC = function () {
 			
-			var i = _getIFrameSize(),
+			var i = _getIFrameSizePC(),
 			    j = _CONST.boxBorderW * 2 + _settings.get("boxPadding") * 2;
 			
 			return {
@@ -556,8 +557,8 @@ var previewbox = (function () {
 		_setStylePC = function (mousePosX, mousePosY) {
 		
 			var wSize = _getWindowSize(),
-				ifSize = _getIFrameSize(),
-				bSize = _getPreviewBoxSize();
+				ifSize = _getIFrameSizePC(),
+				bSize = _getPreviewBoxSizePC();
 			
 			var v = {
 					bTop : NaN,
@@ -904,7 +905,7 @@ if (_dbg.isDBG() && 1) { // To Del
 		/*	Arg:
 				> a = one <a> element to be converted into the preview anchor
 			Return:
-				@ OK: The preview anchor with some new features:
+				@ OK: <ELM> The preview anchor with some new features:
 					* Properties:
 						[ Private ]
 						> _a_queued = a boolean flag to mark the queue state
@@ -916,7 +917,8 @@ if (_dbg.isDBG() && 1) { // To Del
 						[ Private ]
 						> _a_startDetectMouseOut = function (e) : Start detecting if the mouse is out of the preview box
 						> _a_callShowBox = function (e) : The event listener calling the _showBox to work
-						> _a_callHideBox = function (e) : The event listener calling the _hideBox to work
+						> _a_callHideBox = function (e) : The event listener calling the _hideBox to work						
+				@ NG: <*> Just return what passed in
 		*/
 		_mkPreviewAnchor = function (a) {
 			if (   !(a.anchorType >= 0)
