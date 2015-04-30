@@ -917,21 +917,17 @@ if (_dbg.isDBG() && 1) { // To Del
 				_previewbox.iframe.removeAttribute("sandbox");
 			},
 			/*	Arg:
-					> styles = { // The setable styles
-						iframeW : number, the width(in px) of the iframe for the preview page. Cannot be over the client window width * 0.45 and below the client window width * 0.45 * 0.6
-						iframeH : number, the height(in px) of the iframe for the preview page. Cannot be over the client window height * 0.7 and below the client window height * 0.7 * 0.6
-						boxBorderColor : CSS color value, the color the preview box's border
-						boxPadding : the number in px, the preview box's padding
-						loadingImg : the image to display in the backgournd center of the preview box while loading, refer to CSS background-image for the correct value
-						boxShadow : the preview box's shadow, refer to the CSS box-shadow value. If the broswer doesn't support, then no effect appears.
-					}
+					<OBJ> styles = The setable styles.
+								   Each property inside is one new style being set.
+								   Property name is style name. Property value is style value.
+								   Refer to this::_settings for the setable styles.
 				Return:
 					@ NG: null
-					@ OK: one object carrying the current style values.
-					      For exemple, suppoe set the boxBorderColor as #777 and the iframeW as 500, when setting is done,
+					@ OK: one object carrying the changed style values.
+					      For exemple, suppoe set the "#previewbox/border-color" as #777 and the "#previewbox/padding" as 50, when setting is done,
 						  it will return {
-							iframeW : 500,
-							boxBorderColor : "#777"
+							"#previewbox/padding" : 50,
+							"#previewbox/border-color" : "#777"
 						  }
 			*/
 			changeStyles : function (styles) {
