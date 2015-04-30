@@ -7,10 +7,10 @@ var previewbox = (function () {
 	"use strict";
 /*	Properties:
 		[ Private ]
-		> _dbg = one debug control
-		> _CONST = an obj holding the constants
-		> _settings = an obj holding the settins on the preview box. The preview box would work based on these settings dyamically.
-		> _previewbox = an obj, the preview box
+		<OBJ> _dbg = one debug control
+		<OBJ> _CONST = an obj holding the constants
+		<OBJ> _settings = an obj holding the settins on the preview box. The preview box would work based on these settings dyamically.
+		<ELM> _previewbox = the preview box HTML element
 	Methods:
 		[ Private ]
 		> _getIEVersion : Get the IE version
@@ -40,7 +40,9 @@ var previewbox = (function () {
 		/*	Methods:
 				[ Public ]
 				> isDBG : Tell if under the debug mode
+				> warn : Log warnign to console
 				> error : Log error to console
+				> formaStr : Format string. Fox example, formaStr("{0} can {1}.", "Bird", "fly") returns "Bird can fly"
 		*/
 		_dbg = (function () {
 				
@@ -52,45 +54,41 @@ var previewbox = (function () {
 				isDBG : function () {
 					return true;
 				},
+				/*	Arg:
+						<STR> msg = the warning message
+				*/
+				warn : function (msg) {
+					console.warn("previewbox warn : " + msg);
+				},
+				/*	Arg:
+						<STR> error = the error message
+				*/
 				error : function (msg) {
 					console.error("previewbox error : " + msg);
+				},
+				/*	Arg:
+						<STR> The 1st arg is the base string to format
+						<STR|NUM> The rest of args are values supplied into the base string
+					Return:
+						<STR> The formatted string
+				*/
+				formaStr : function () { // From : http://jsfiddle.net/joquery/9KYaQ/
+					var theString = arguments[0];
+					
+					for (var i = 1; i < arguments.length; i++) {
+						var regEx = new RegExp("\\{" + (i - 1) + "\\}", "gm");
+						theString = theString.replace(regEx, arguments[i]);
+					}
+					
+					return theString;
 				}
 			}
 		})(),
-		//_CONST = { // To Del old
-		//	validProtocols : ["//", "http://", "https://"],
-		//	
-		//	boxID : "previewbox",
-		//	anchorClass : "previewbox-anchor",
-		//	
-		//	fallbackWindowW : 1024, // in px
-		//	fallbackWindowH : 768, // in px
-		//	
-		//	boxFontSize : 16, // in px
-		//	boxHiddenPosTop : "-10000px",
-		//	boxHiddenPosLeft : "-10000px",
-		//	
-		//	// For the PC mode
-		//	boxBorderW : 4, // in px
-		//	iframeMaxPercW : 0.45, // The max proportion of the iframe's width could occuppy the window width
-		//	iframeMinPercW : 0.45 * 0.6,
-		//	iframeMaxPercH : 0.7, // The max proportion of the iframe's height could occuppy the window height
-		//	iframeMinPercH : 0.7 * 0.6,
-		//	windowPadding : 15, // in px; The min space between the preview box and the window top/bottom
-		//	box2PtrPadding : 15, // in px; The min space between the preview box's pointer and the preview box top/bottom
-		//	ptrBorderTopW : 5, // in px
-		//	ptrBorderLeftW : 16, // in px
-		//	
-		//	// For the mobile mode
-		//	mobileBarH : 16 * 3
-		//	
-		//	"just for ending" : undefined
-		//},
 		_CONST = (function (c) {
 			
 			c.validProtocols = ["//", "http://", "https://"];
 			
-			c.boxID = "previewbox"
+			c.boxID = "previewbox";
 			c.anchorClass = "previewbox-anchor";
 			
 			c.fallbackWindowW = 1024; // in px
@@ -118,19 +116,149 @@ var previewbox = (function () {
 			
 			return c;
 		})({}),
-		_settings = {
-			loadingImg : "", // The backgournd image used when loading
-			boxBorderColor : "#333", // The border color of the preview box
-			iframeW : _CONST.fallbackWindowW * _CONST.iframeMaxPercW, // The #previewbox-iframe wish width. The real size doesn't necessarily obey this value but will dynamically be computed based this wish value.
-			iframeH : _CONST.fallbackWindowH * _CONST.iframeMaxPercH, // The #previewbox-iframe wish height
-			boxPadding : 14, // The padding of the preview box(affecting #previewbox)
-			boxShadow : "", // The preview box's box-shadow
+		/*	Properties:
+				[ Private ]
+				<OBJ> __commonTypeChker = the collection of common implemntations of this::__inf_TypeChker
+				<OBJ> __value  = the setting values' collection
+				<OBJ> __aliasDeprecated = the alias map between the deprecated keys to the current keys
+				<INF> __inf_TypeChker = the data type checker for setting's value
+						Arg:
+							<*> v = the value being checked against with.
+						Return:
+							@ OK: true
+							@ NG: false
+			Methods:
+				[ Public ]
+				> get : Get one setting value
+				> set : Set one setting value
+		*/
+		_settings = (function (s) {
 			
-			// For the mobile mode
-			mobileBarColor : "#edeeef",
+			var
+			__commonTypeChker = {
+				isNUM : function (v) {
+					return (typeof v == "number") && !isNaN(v);
+				},
+				isPositiveNUM : function (v) {
+					return (typeof v == "number") && (v >= 0);
+				},
+				isSTR : function (v) {
+					return typeof v == "string";
+				},
+				isNonEmptySTR : function (v) {
+					return __commonTypeChker.isSTR(v) && v;
+				}
+			},
+			/*	Properties:
+					[ Public ]
+					> Each property stores one setting.
+					  Property name is the key to setting.
+					  Property value is one array which:
+						- The 1st element is the setting value
+						- The 2nd element is the type checking function which shall implement this::__inf_TypeChker
+			*/
+			__value = {
+				
+				// <NUM> The padding of the preview box in px
+				"#previewbox/padding" : [ 14, __commonTypeChker.isNUM ],
+				// <STR> The preview box's box-shadow CSS value
+				"#previewbox/box-shadow" : [ "", __commonTypeChker.isSTR ],
+				// <STR> The CSS color of the preview box' border
+				"#previewbox/border-color" : [ "#333", __commonTypeChker.isNonEmptySTR ],
+				// <STR> The backgournd image(in valid CSS) used when loading	
+				"#previewbox/background-image" : [ "", __commonTypeChker.isSTR ],
+				
+				// <NUM> In px. The iframe wish width. The real size doesn't necessarily obey this value but will dynamically be computed based this wish value.
+				"#previewbox-iframe/width" : [ _CONST.fallbackWindowW * _CONST.iframeMaxPercW, __commonTypeChker.isPositiveNUM ],
+				// <NUM> in px. The iframe wish height
+				"#previewbox-iframe/height" : [ _CONST.fallbackWindowH * _CONST.iframeMaxPercH, __commonTypeChker.isPositiveNUM ],
+				
+				// -- For the mobile mode -- //
+				
+				// <STR> The CSS color of the mobileBar. This is going to decide the font and the button color on the mobileBar.
+				"#previewbox-mobileBar/color" : [ "#edeeef", __commonTypeChker.isNonEmptySTR ],
+								
+				"just for ending" : undefined				
+			},
+			__aliasDeprecated = {
+				
+				boxPadding : "#previewbox/padding",
+				boxShadow : "#previewbox/box-shadow",
+				loadingImg : "#previewbox/background-image",
+				boxBorderColor : "#previewbox/border-color",
+				
+				iframeW : "#previewbox-iframe/width",
+				iframeH : "#previewbox-iframe/height",
+				
+				mobileBarColor : "#previewbox-mobileBar/color",
+				
+				"just for ending" : undefined
+			};
 			
-			"just for ending" : undefined
-		},
+			/*	Arg:
+					<STR> key = the key to setting's value
+				Return:
+					@ OK: <*> the appropriate setting's value
+					@ NG: null
+			*/
+			s.get = function (key) {
+				
+				if (__aliasDeprecated[key] !== undefined) {
+				
+					_dbg.warn(_dbg.formaStr("Use the deprecated setting key <{0}>. Use <{1}> instead", key, __aliasDeprecated[key]));
+				
+					key = __aliasDeprecated[key];
+				}
+				
+				if (__value[key] !== undefined) {
+					
+					return __value[key][0];
+				
+				} else {
+					
+					_dbg.warn(_dbg.formaStr("Getting unknown setting with key <{0}>", key));
+					
+					return null;
+				}
+			}
+			
+			/*	Arg:
+					<STR> key = the key of setting
+					<*> value = the value to set
+				Return:
+					@ OK: true
+					@ NG: false
+			*/
+			s.set = function (key, value) {
+				
+				if (__aliasDeprecated[key] !== undefined) {
+				
+					_dbg.warn(_dbg.formaStr("Use the deprecated setting key <{0}>. Use <{1}> instead", key, __aliasDeprecated[key]));
+				
+					key = __aliasDeprecated[key];
+				}
+			
+				if (__value[key] !== undefined) {
+					
+					if (__value[key][1](value)) {
+					
+						__value[key][0] = value;
+						
+						return true;
+						
+					} else {						
+						_dbg.warn(_dbg.formaStr("Setting <{0}> with invalid value <{1}>", key, value));
+					}
+					
+				} else {				
+					_dbg.warn(_dbg.formaStr("Setting unknown setting with key <{0}>", key));
+				}
+				
+				return false;
+			}
+			
+			return s;
+		})({}),
 		/*	Properties:
 				[ Public ]
 				<ELM> The child DOM elements, refer to this::_mkPrviewBox
@@ -292,18 +420,21 @@ var previewbox = (function () {
 			var c = _getWindowSize();
 			
 			if (c.windowWidth > 0 || c.windowHeight > 0) {
-			
+				
+				var iframeW = _settings.get("iframeW"),
+					iframeH = _settings.get("iframeH");
+				
 				c.iMaxW = c.windowWidth * _CONST.iframeMaxPercW;
 				c.iMinW = c.windowWidth * _CONST.iframeMinPercW;
 				c.iMaxH = c.windowHeight * _CONST.iframeMaxPercH;
 				c.iMinH = c.windowHeight * _CONST.iframeMinPercH;
 				
-				c.iW = (c.iMinW <= _settings.iframeW && _settings.iframeW <= c.iMaxW) ?
-					   _settings.iframeW : (c.iMinW > _settings.iframeW) ?
+				c.iW = (c.iMinW <= iframeW && iframeW <= c.iMaxW) ?
+					   iframeW : (c.iMinW > iframeW) ?
 					   c.iMinW : c.iMaxW;
 				
-				c.iH = (c.iMinH <= _settings.iframeH && _settings.iframeH <= c.iMaxH) ?
-					   _settings.iframeH : (c.iMinH > _settings.iframeH) ?
+				c.iH = (c.iMinH <= iframeH && iframeH <= c.iMaxH) ?
+					   iframeH : (c.iMinH > iframeH) ?
 					   c.iMinH : c.iMaxH;
 			
 			} else {
@@ -322,11 +453,12 @@ var previewbox = (function () {
 		*/
 		_getPreviewBoxSize = function () {
 			
-			var i = _getIFrameSize();
+			var i = _getIFrameSize(),
+			    j = _CONST.boxBorderW * 2 + _settings.get("boxPadding") * 2;
 			
 			return {
-				width : i.iframeW + _CONST.boxBorderW * 2 + _settings.boxPadding * 2,
-				height : i.iframeH + _CONST.boxBorderW * 2 + _settings.boxPadding * 2
+				width : i.iframeW + j,
+				height : i.iframeH + j
 			};
 		},
 		/*
@@ -336,9 +468,9 @@ var previewbox = (function () {
 			  _previewbox.style.color
 			= _previewbox.hintxt.style.color
 			= _previewbox.pointer.style.borderColor
-			= _previewbox.mobileBar.style.backgroundColor = _settings.boxBorderColor;
+			= _previewbox.mobileBar.style.backgroundColor = _settings.get("boxBorderColor");
 			
-			_previewbox.style.backgroundImage = _settings.loadingImg;
+			_previewbox.style.backgroundImage = _settings.get("loadingImg");
 			
 			// Hide first then show later
 			   _previewbox.carpet.style.display
@@ -365,13 +497,13 @@ var previewbox = (function () {
 					bW : bSize.width,
 					bH : bSize.height,
 					bBorderW : _CONST.boxBorderW,
-					bPadding : _settings.boxPadding,
+					bPadding : _settings.get("boxPadding"),
 					ifW : ifSize.iframeW,
 					ifH : ifSize.iframeH,
 					fontSize : _CONST.boxFontSize,
 					pWidth : 2 * _CONST.ptrBorderLeftW,
 					pHozPos : -(2 * _CONST.ptrBorderLeftW + _CONST.boxBorderW - 1),
-					pTopMin : _CONST.box2PtrPadding - _CONST.boxBorderW - _settings.boxPadding,
+					pTopMin : _CONST.box2PtrPadding - _CONST.boxBorderW - _settings.get("boxPadding"),
 					winW : (wSize.windowWidth > 0) ? wSize.windowWidth : _CONST.fallbackWindowW,
 					winH : (wSize.windowHeight > 0) ? wSize.windowHeight : _CONST.fallbackWindowH
 				};
@@ -383,7 +515,7 @@ var previewbox = (function () {
 				v.bTop = v.winH - v.bH - _CONST.windowPadding;
 			}
 			
-			v.pTop = mousePosY - v.bTop - _CONST.boxBorderW - _settings.boxPadding + _CONST.ptrBorderTopW;
+			v.pTop = mousePosY - v.bTop - _CONST.boxBorderW - _settings.get("boxPadding ")+ _CONST.ptrBorderTopW;
 			if (v.pTop < v.pTopMin) {
 			// The preview box pointer's top value is less than the min limit
 				v.pTop = _CONST.box2PtrPadding;				
@@ -444,12 +576,12 @@ var previewbox = (function () {
 				_previewbox.pointer.style.borderRightColor = "transparent";
 			}
 			
-			if (_settings.boxShadow) {
-				_previewbox.style.oBoxShadow = _settings.boxShadow;
-				_previewbox.style.msBoxShadow = _settings.boxShadow;
-				_previewbox.style.mozBoxShadow = _settings.boxShadow;
-				_previewbox.style.webkitBoxShadow = _settings.boxShadow;
-				_previewbox.style.boxShadow = _settings.boxShadow;
+			if (_settings.get("boxShadow")) {
+				_previewbox.style.oBoxShadow =
+				_previewbox.style.msBoxShadow =
+				_previewbox.style.mozBoxShadow =
+				_previewbox.style.webkitBoxShadow =
+				_previewbox.style.boxShadow = _settings.get("boxShadow");
 			}
 		},
 		/*
@@ -459,7 +591,7 @@ var previewbox = (function () {
 			var v = {
 					ifTop : _CONST.mobileBarH,
 					hTop : _CONST.mobileBarH + 2,
-					bPadding : _settings.boxPadding / 2,
+					bPadding : _settings.get("boxPadding") / 2,
 					fontSize : _CONST.mobileBoxFontSize
 				};
 			
@@ -502,7 +634,7 @@ var previewbox = (function () {
 		*/
 		_showBox = function (href, mousePosX, mousePosY) {
 			
-if (_dbg.isDBG() && 0) { // To Del
+if (_dbg.isDBG() && 1) { // To Del
 
 	_setStyle();
 	_setStyleMobile();
@@ -596,7 +728,7 @@ if (_dbg.isDBG() && 0) { // To Del
 							+			 'margin: 0;'
 							+			 'line-height:' + _CONST.mobileBarH + 'px;'
 							+			 'font-size:' + _CONST.mobileBoxFontSize + 'px;'
-							+	         'color:' + _settings.mobileBarColor + ";"
+							+	         'color:' + _settings.get("mobileBarColor") + ";"
 							+	   	     'position: absolute;'
 							+			 'z-index: 4;'
 							+	         'top: 0;'
@@ -613,7 +745,7 @@ if (_dbg.isDBG() && 0) { // To Del
 							+                 'overflow: hidden;'
 							+                 'text-overflow: ellipsis;'
 							+                 'white-space: nowrap;'
-							+	              'color:' + _settings.mobileBarColor + ";"
+							+	              'color:' + _settings.get("mobileBarColor") + ";"
 							+		   '"'
 							+		'>TODO : Set to the previewed link text</a>'
 							+		'<div id="previewbox-mobileBar-closeBtn"'
@@ -807,49 +939,21 @@ if (_dbg.isDBG() && 0) { // To Del
 				var newStyles = null;
 				
 				if (styles instanceof Object) {
-				
-					if (typeof styles.iframeW == "number" && styles.iframeW > 0) {
-						
-						if (!(newStyles instanceof Object)) newStyles = {};
-						
-						newStyles.iframeW = _settings.iframeW = styles.iframeW;
-					}
 					
-					if (typeof styles.iframeH == "number" && styles.iframeH > 0) {
+					for (var prop in styles) {
 						
-						if (!(newStyles instanceof Object)) newStyles = {};
-						
-						newStyles.iframeH = _settings.iframeH = styles.iframeH;
-					}
-					
-					if (typeof styles.boxBorderColor == "string" && styles.boxBorderColor) {
-						
-						if (!(newStyles instanceof Object)) newStyles = {};
-						
-						newStyles.boxBorderColor = _settings.boxBorderColor = styles.boxBorderColor;
-					}
-					
-					if (typeof styles.boxPadding == "number" && styles.boxPadding > 0) {
-						
-						if (!(newStyles instanceof Object)) newStyles = {};
-						
-						newStyles.boxPadding = _settings.boxPadding = styles.boxPadding;
-					}
-					
-					if (typeof styles.loadingImg == "string" && styles.loadingImg) {
-						
-						if (!(newStyles instanceof Object)) newStyles = {};
-						
-						newStyles.loadingImg = _settings.loadingImg = styles.loadingImg;
-					}
-					
-					if (typeof styles.boxShadow == "string" && styles.boxShadow) {
-						
-						if (!(newStyles instanceof Object)) newStyles = {};
-						
-						newStyles.boxShadow = _settings.boxShadow = styles.boxShadow;
+						if (styles.hasOwnProperty(prop) && typeof prop != "function") {
+							
+							if (_settings.set(prop, styles[prop])) {
+								
+								if (!(newStyles instanceof Object)) newStyles = {};
+								
+								newStyles[prop] = styles[prop];
+							}
+						}
 					}
 				}
+				
 				return newStyles;
 			},
 			/*	Arg:
