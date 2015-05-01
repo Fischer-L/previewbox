@@ -315,13 +315,20 @@ var previewbox = (function () {
 			if (!e) e = window.event;
 			
 			if (!e.target) e.target = e.srcElement || document;
-						
-			e.preventDefault = function () {
-				e.returnValue = false;
-				e.isDefaultPrevented = function returnTrue() { return true; };
-			};
 			
-			e.isDefaultPrevented = function returnFalse() { return false; };
+			if (!e.preventDefault) {
+			
+				e.preventDefault = function () {
+					
+					e.returnValue = false; // Support IE
+					
+					e.defaultPrevented = true;
+					
+					return false; // Mimic the legacy approach
+				}
+				
+				e.defaultPrevented = false;
+			}
 			
 			return e;
 		},
