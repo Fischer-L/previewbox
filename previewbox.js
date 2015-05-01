@@ -130,6 +130,7 @@ var previewbox = (function () {
 			c.mobileBoxBorderW = 6; // in px
 			c.mobileBoxFontSize = c.boxFontSize * 0.9;
 			c.mobileBarH = c.mobileBoxFontSize * 4;
+			c.mobileTransitionSec = 0.5; // in sec; The transition duration
 			
 			return c;
 		})({}),
@@ -176,27 +177,35 @@ var previewbox = (function () {
 			*/
 			__value = {
 				
-				// <NUM> The padding of the preview box in px
-				"#previewbox/padding" : [ 14, __commonTypeChker.isNUM ],
-				// <STR> The preview box's box-shadow CSS value
-				"#previewbox/box-shadow" : [ "", __commonTypeChker.isSTR ],
-				// <STR> The CSS color of the preview box' border
-				"#previewbox/border-color" : [ "#333", __commonTypeChker.isNonEmptySTR ],
-				// <STR> The backgournd image(in valid CSS) used when loading	
-				"#previewbox/background-image" : [ "", __commonTypeChker.isSTR ],
+				"noEffectsInMobile" : false,
 				
-				// <NUM> In px. The iframe wish width. The real size doesn't necessarily obey this value but will dynamically be computed based this wish value.
-				"#previewbox-iframe/width" : [ _CONST.fallbackWindowW * _CONST.iframeMaxPercW, __commonTypeChker.isPositiveNUM ],
-				// <NUM> in px. The iframe wish height
-				"#previewbox-iframe/height" : [ _CONST.fallbackWindowH * _CONST.iframeMaxPercH, __commonTypeChker.isPositiveNUM ],
+				// -- Style settings -- //
 				
-				// <STR> The inner text value of the #previewbox-hintxt
-				"#previewbox-hintxt/value" : [ "Preview", __commonTypeChker.isNonEmptySTR ],
-				
-				// -- For the mobile mode -- //
-				
-				// <STR> The CSS color of the mobileBar. This is going to decide the font and the button color on the mobileBar.
-				"#previewbox-mobileBar/color" : [ "#edeeef", __commonTypeChker.isNonEmptySTR ],
+					// <NUM> The padding of the preview box in px
+					"#previewbox/padding" : [ 14, __commonTypeChker.isNUM ],
+					// <STR> The preview box's box-shadow CSS value
+					"#previewbox/box-shadow" : [ "", __commonTypeChker.isSTR ],
+					// <STR> The CSS color of the preview box' border
+					"#previewbox/border-color" : [ "#333", __commonTypeChker.isNonEmptySTR ],
+					// <STR> The backgournd image(in valid CSS) used when loading	
+					"#previewbox/background-image" : [ "", __commonTypeChker.isSTR ],
+					
+					// <STR> The inner text value of the #previewbox-hintxt
+					"#previewbox-hintxt/value" : [ "Preview", __commonTypeChker.isNonEmptySTR ],
+										
+					// -- For the PC mode -- // 
+					
+						// <NUM> In px. The iframe wish width. The real size doesn't necessarily obey this value but will dynamically be computed based this wish value.
+						"#previewbox-iframe/width" : [ _CONST.fallbackWindowW * _CONST.iframeMaxPercW, __commonTypeChker.isPositiveNUM ],
+						// <NUM> in px. The iframe wish height
+						"#previewbox-iframe/height" : [ _CONST.fallbackWindowH * _CONST.iframeMaxPercH, __commonTypeChker.isPositiveNUM ],
+										
+					// -- For the mobile mode -- //
+					
+						// <STR> The CSS color of the mobileBar. This is going to decide the font and the button color on the mobileBar.
+						"#previewbox-mobileBar/color" : [ "#edeeef", __commonTypeChker.isNonEmptySTR ],
+					
+				// !-- Style settings -- //
 								
 				"just for ending" : undefined				
 			},
@@ -571,23 +580,30 @@ var previewbox = (function () {
 		*/
 		_setStyle = function () {
 			
-			  _previewbox.style.color
-			= _previewbox.hintxt.style.color
-			= _previewbox.pointer.style.borderColor
-			= _previewbox.mobileBar.style.backgroundColor = _settings.get("boxBorderColor");
+			// Let's reset styles
 			
+			_previewbox.style.color =
+			_previewbox.hintxt.style.color =
+			_previewbox.pointer.style.borderColor =
+			_previewbox.mobileBar.style.backgroundColor = _settings.get("boxBorderColor");
+			
+			_previewbox.style.position = "fixed";
 			_previewbox.style.backgroundImage = _settings.get("loadingImg");
 			
 			_previewbox.hintxt.innerHTML = _settings.get("#previewbox-hintxt/value");
 			
-			// Hide first then show later
-			   _previewbox.carpet.style.display
-			= _previewbox.pointer.style.display
-			= _previewbox.mobileBar.style.display = "none";
+			_previewbox.carpet.style.display =
+			_previewbox.pointer.style.display =
+			_previewbox.mobileBar.style.display = "none";
 			
-			// Clear first then set later
-			  _previewbox.hintxt.style.left
-			= _previewbox.hintxt.style.right = "";
+			_previewbox.hintxt.style.left =
+			_previewbox.hintxt.style.right = "";			
+			
+			_previewbox.iframe.style.padding =
+			_previewbox.iframe.style.borderWidth =
+			_previewbox.iframe.style.borderTopWidth = "0";
+			_previewbox.iframe.style.borderStyle = 
+			_previewbox.iframe.style.borderColor ="";
 		},
 		/*	Arg:
 				<NUM> mousePosX = the horizontal coordinate (according to the client area) of the mouse pointer
@@ -644,11 +660,10 @@ var previewbox = (function () {
 			
 			_previewbox.style.transition = "";
 			_previewbox.style.top = v.bTop + "px";
-			_previewbox.style.overflow = "visible";
 			_previewbox.style.boxSize = "content-box";
 			_previewbox.style.padding = v.bPadding + "px";
-			_previewbox.style.borderWidth = v.bBorderW + 'px';	
-			_previewbox.style.borderTopWidth = _previewbox.style.borderWidth;
+			_previewbox.style.borderWidth = 	
+			_previewbox.style.borderTopWidth = v.bBorderW + 'px';
 			
 			_previewbox.iframe.style.top = "0";
 			_previewbox.iframe.style.width = v.ifW + "px";
@@ -710,6 +725,7 @@ var previewbox = (function () {
 				};
 			
 			if (!s.aTitle) v.aTitle = s.aHref;
+			
 			if (_dbg.isDBG()) {
 			
 				for (var p in v) {
@@ -734,30 +750,28 @@ var previewbox = (function () {
 					}
 				}
 			}
-			
-			_previewbox.style.overflow = "hidden";
+						
+			_previewbox.style.top =
+			_previewbox.style.left = "0";
+			_previewbox.style.width =
+			_previewbox.style.height = "100%";
 			_previewbox.style.boxSizing = "border-box";
 			_previewbox.style.padding = v.bPadding + "px";
 			_previewbox.style.borderWidth = _CONST.mobileBoxBorderW + 'px';
 			_previewbox.style.borderTopWidth = "0";
-			_previewbox.style.transition = "width 0.5s, height 0.5s";
+			_previewbox.style.transition = "";
 			
 			_previewbox.hintxt.style.right = "6px";
 			_previewbox.hintxt.style.top = v.hTop + "px";
 			_previewbox.hintxt.style.fontSize = v.fontSize + 'px';
 			
-			_previewbox.mobileBar.style.display = "block";
-			
+			_previewbox.mobileBar.style.display = "block";			
 			_previewbox.mobileBar.targetLink.href = s.aHref;
 			_previewbox.mobileBar.targetLink.innerHTML = s.aTitle;
 			
-			_previewbox.iframe.style.top = v.ifTop + "px";
-			
 			_previewbox.iframe.style.width =
 			_previewbox.iframe.style.height = "100%";
-			
-			_previewbox.style.top =
-			_previewbox.style.left = "0";
+			_previewbox.iframe.style.top = v.ifTop + "px";			
 		},
 		/*	Arg:
 				<ELM> previewAnchor = the <a> element currently being the preview target
@@ -783,42 +797,52 @@ var previewbox = (function () {
 			_setStyle();
 			_setStyleMobile(previewAnchor);
 			
-			_previewbox.style.width =
-			_previewbox.style.height = "0%";
+			if (!_settings.get("noEffectsInMobile")) {
+				
+				var tSec = _CONST.mobileTransitionSec;
 			
-			_showBox(previewAnchor);
-		
-if (_dbg.isDBG()) { // To Del
+				if (_dbg.isDBG()) {
+						
+					if (isNaN(tSec) || typeof tSec != "number" || tSec < 0) {	
+					
+						_dbg.error(_dbg.formaStr("illegal value for mobile transition sec = {1}", tSec));
+					}
+				}
 			
-	_previewbox.style.width = "100%";
-	_previewbox.style.height = "100%";
-	_previewbox.style.position = "fixed";
-	_previewbox.style.overflow = "visible";	
-	
-	_previewbox.mobileBar.targetLink.innerHTML = 7;
-	
-			
-	_addEvent(_previewbox.iframe, "load", function () {
-		_previewbox.style.position = "absolute";
-		_previewbox.style.padding = "0";
-		_previewbox.style.borderWidth = "0";
-		_previewbox.iframe.style.padding = _settings.get("boxPadding") / 2;
-		_previewbox.iframe.style.borderWidth = _CONST.mobileBoxBorderW + 'px';
-		_previewbox.iframe.style.borderStyle = "solid";
-		_previewbox.iframe.style.borderColor = _settings.get("boxBorderColor");
-		window.scrollTo(scrollX, 0);
-		//_previewbox.style.backgroundImage = "";
-		//_previewbox.style.height = "auto";
-	});
-	
-	return;
-} 		
-			
-			// Delay for the open transition
-			setTimeout(function () {
 				_previewbox.style.width =
-				_previewbox.style.height = "100%";			
-			}, 80);
+				_previewbox.style.height = "0%";				
+				_previewbox.style.transition = "width " + tSec + "s, height " + tSec + "s";
+			
+				_showBox(previewAnchor);
+			
+				// Delay for the open transition
+				setTimeout(function () {
+					_previewbox.style.width =
+					_previewbox.style.height = "100%";
+				}, 50);
+				
+				
+				setTimeout(function () {
+					
+					var p
+					
+					_previewbox.style.padding =
+					_previewbox.style.borderWidth = "0";
+					_previewbox.style.position = "absolute";
+		
+					_previewbox.iframe.style.padding = _settings.get("boxPadding") / 2;
+					_previewbox.iframe.style.borderWidth = _CONST.mobileBoxBorderW + 'px';
+					_previewbox.iframe.style.borderTopWidth = "0";
+					_previewbox.iframe.style.borderStyle = "solid";
+					_previewbox.iframe.style.borderColor = _settings.get("boxBorderColor");
+					
+					window.scrollTo(scrollX, 0);
+					
+				}, tSec * 1000 - 50);
+			}
+			
+			
+			
 		},
 		/*
 		*/
@@ -864,7 +888,7 @@ if (_dbg.isDBG()) { // To Del
 			// div.style.backgroundImage = set dynamically
 			div.style.backgroundPosition = "center center";
 			div.style.backgroundRepeat = "no-repeat";
-			// div.style.overflow = when at the mobile mode ? hidden : visible;
+			div.style.overflow = "visible";
 			div.style.position = "fixed";
 			div.style.top = _CONST.boxHiddenPosTop; // when at the mobile mode ? 0 : set dynamically based on the mouse position
 			div.style.left = _CONST.boxHiddenPosLeft; // when at the mobile mode ? 0 : set dynamically based on the mouse position
@@ -969,11 +993,11 @@ if (_dbg.isDBG()) { // To Del
 							+		'</div>'
 							+'</div>'
 						    +'<iframe id="previewbox-iframe" frameborder="0" sandbox="allow-scripts"'
-							+        'style="border: none;'
-							+				'box-sizing: border-box;'
+							+        'style="box-sizing: border-box;'
 							+				'position: relative;'
 							+				'z-index: 3;'
-											// width/height: when at the mobile mode ? 100% : computed dynamically
+											// width/height: when at the mobile mode ? 100% : computed 
+											// padding & border: when at the PC mode ? none : Need some hacks
 											// top: when at the mobile mode ? the same as #previewbox-mobileBar height : 0
 							+				'"'
 							+'></iframe>';
