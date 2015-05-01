@@ -177,6 +177,10 @@ var previewbox = (function () {
 			*/
 			__value = {
 				
+				// <NUM> The original window.scrollY backup. This is for the mobile transition animation's use
+				"origScrollYInMobile" : 0,
+				
+				// <BOO> If true, no effects would take place in the mobile mode. You may need this for a better performance on mobile device.
 				"noEffectsInMobile" : false,
 				
 				// -- Style settings -- //
@@ -603,7 +607,7 @@ var previewbox = (function () {
 			_previewbox.iframe.style.borderWidth =
 			_previewbox.iframe.style.borderTopWidth = "0";
 			_previewbox.iframe.style.borderStyle = 
-			_previewbox.iframe.style.borderColor ="";
+			_previewbox.iframe.style.borderColor = "";
 		},
 		/*	Arg:
 				<NUM> mousePosX = the horizontal coordinate (according to the client area) of the mouse pointer
@@ -813,32 +817,51 @@ var previewbox = (function () {
 				_previewbox.style.height = "0%";				
 				_previewbox.style.transition = "width " + tSec + "s, height " + tSec + "s";
 			
-				_showBox(previewAnchor);
-			
-				// Delay for the open transition
-				setTimeout(function () {
-					_previewbox.style.width =
-					_previewbox.style.height = "100%";
-				}, 50);
+				// -- Hack for the scrolling issue -- //
 				
-				
-				setTimeout(function () {
+				_addEvent(_previewbox.iframe, "load", function () {
 					
-					var p
-					
-					_previewbox.style.padding =
-					_previewbox.style.borderWidth = "0";
+					// For some mobile browsers, it must be "absolute" to be able to scroll the iframe
 					_previewbox.style.position = "absolute";
-		
-					_previewbox.iframe.style.padding = _settings.get("boxPadding") / 2;
-					_previewbox.iframe.style.borderWidth = _CONST.mobileBoxBorderW + 'px';
-					_previewbox.iframe.style.borderTopWidth = "0";
-					_previewbox.iframe.style.borderStyle = "solid";
-					_previewbox.iframe.style.borderColor = _settings.get("boxBorderColor");
 					
+					// Replace the outer border & padding with the iframe's
+					_previewbox.iframe.style.padding = _previewbox.style.padding;
+					_previewbox.style.padding = "0";
+					
+					_previewbox.iframe.style.borderWidth = _previewbox.style.borderWidth;
+					_previewbox.style.borderWidth = "0";
+					
+					_previewbox.iframe.style.borderTopWidth = _previewbox.style.borderTopWidth;
+					_previewbox.style.borderTopWidth = "0";
+					
+					_previewbox.iframe.style.borderStyle = _previewbox.style.borderStyle;
+					_previewbox.style.borderStyle = "";
+					
+					_previewbox.iframe.style.borderColor = _previewbox.style.borderColor;
+					_previewbox.style.borderColor = "";
+				});				
+				
+				setTimeout(function () {
+				
+					// Since the position will change from "fixed" to "absolute",
+					// we have to make sure that the window is scrolled to the top.
+					// And backup the original scroll position for returning later.					
+					_settings.set("origScrollYInMobile",  scrollY);					
 					window.scrollTo(scrollX, 0);
 					
-				}, tSec * 1000 - 50);
+				}, tSec * 1000);
+				
+				// !-- Hack for the scrolling issue -- //
+				
+				_showBox(previewAnchor);
+						
+				// Delay for the open transition
+				setTimeout(function () {
+				
+					_previewbox.style.width =
+					_previewbox.style.height = "100%";
+					
+				}, 50);
 			}
 			
 			
