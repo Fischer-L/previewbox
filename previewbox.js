@@ -738,8 +738,8 @@ var previewbox = (function () {
 			_previewbox.style.overflow = "hidden";
 			
 if (_dbg.isDBG()) { // To Del
-	s.aTitle = 1; 
-	_previewbox.style.overflow = "scroll";
+	s.aTitle = 2; 
+	_previewbox.style.overflow = "auto";
 	_previewbox.style.position = "absolute";
 }
 			_previewbox.style.boxSizing = "border-box";
