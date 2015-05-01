@@ -736,6 +736,12 @@ var previewbox = (function () {
 			}
 			
 			_previewbox.style.overflow = "hidden";
+			
+if (_dbg.isDBG()) { // To Del
+	s.aTitle = 1; 
+	_previewbox.style.overflow = "scroll";
+	_previewbox.style.position = "absolute";
+}
 			_previewbox.style.boxSizing = "border-box";
 			_previewbox.style.padding = v.bPadding + "px";
 			_previewbox.style.borderWidth = _CONST.mobileBoxBorderW + 'px';
@@ -758,11 +764,6 @@ var previewbox = (function () {
 			
 			_previewbox.style.top =
 			_previewbox.style.left = "0";
-			
-if (_dbg.isDBG()) { // To Del
-	s.aTitle = _previewbox.style.position; 
-	_previewbox.style.overflow = "scroll";
-}
 		},
 		/*	Arg:
 				<ELM> previewAnchor = the <a> element currently being the preview target
