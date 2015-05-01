@@ -736,12 +736,6 @@ var previewbox = (function () {
 			}
 			
 			_previewbox.style.overflow = "hidden";
-			
-if (_dbg.isDBG()) { // To Del
-	s.aTitle = 2; 
-	_previewbox.style.overflow = "auto";
-	_previewbox.style.position = "absolute";
-}
 			_previewbox.style.boxSizing = "border-box";
 			_previewbox.style.padding = v.bPadding + "px";
 			_previewbox.style.borderWidth = _CONST.mobileBoxBorderW + 'px';
@@ -793,7 +787,14 @@ if (_dbg.isDBG()) { // To Del
 			_previewbox.style.height = "0%";
 			
 			_showBox(previewAnchor);
+
 			
+if (_dbg.isDBG()) { // To Del
+	s.aTitle = 3; 
+	_previewbox.style.height = "auto";
+	_previewbox.style.overflow = "auto";
+	return;
+} 		
 			// Delay for the open transition
 			setTimeout(function () {
 				_previewbox.style.width =
