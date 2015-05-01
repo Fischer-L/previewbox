@@ -793,7 +793,7 @@ if (_dbg.isDBG()) { // To Del
 	_previewbox.mobileBar.targetLink.innerHTML = 5;
 	_previewbox.style.width = "100%";
 	_previewbox.style.height = "auto";
-	_previewbox.style.overflow = "auto";
+	_previewbox.style.overflow = "scroll";
 	
 	_showBox(previewAnchor);
 	
