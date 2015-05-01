@@ -784,9 +784,9 @@ if (_dbg.isDBG()) { // To Del
 			_setStyle();
 			_setStyleMobile(previewAnchor);
 			
-	s.aTitle = 6;
+	s.aTitle = 7;
 	_previewbox.style.width = "100%";
-	_previewbox.style.height = "auto";
+	_previewbox.style.height = "100%";
 	_previewbox.iframe.style.height = "auto";
 	_previewbox.style.overflow = "auto";
 	
