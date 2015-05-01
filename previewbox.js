@@ -790,9 +790,10 @@ var previewbox = (function () {
 
 			
 if (_dbg.isDBG()) { // To Del
-	s.aTitle = 4;
+	s.aTitle = 5;
 	_previewbox.style.width = "100%";
 	_previewbox.style.height = "auto";
+	_previewbox.iframe.style.height = "auto";
 	_previewbox.style.overflow = "auto";
 	return;
 } 		
