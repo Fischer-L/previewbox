@@ -710,7 +710,6 @@ var previewbox = (function () {
 				};
 			
 			if (!s.aTitle) v.aTitle = s.aHref;
-if (_dbg.isDBG()) s.aTitle = _previewbox.style.position; // To Del
 			if (_dbg.isDBG()) {
 			
 				for (var p in v) {
@@ -759,6 +758,11 @@ if (_dbg.isDBG()) s.aTitle = _previewbox.style.position; // To Del
 			
 			_previewbox.style.top =
 			_previewbox.style.left = "0";
+			
+if (_dbg.isDBG()) { // To Del
+	s.aTitle = _previewbox.style.position; 
+	_previewbox.style.overflow = "scroll";
+}
 		},
 		/*	Arg:
 				<ELM> previewAnchor = the <a> element currently being the preview target
@@ -840,7 +844,7 @@ if (_dbg.isDBG()) s.aTitle = _previewbox.style.position; // To Del
 			div.style.backgroundPosition = "center center";
 			div.style.backgroundRepeat = "no-repeat";
 			// div.style.overflow = when at the mobile mode ? hidden : visible;
-			div.style.position = "absolute";
+			div.style.position = "fixed";
 			div.style.top = _CONST.boxHiddenPosTop; // when at the mobile mode ? 0 : set dynamically based on the mouse position
 			div.style.left = _CONST.boxHiddenPosLeft; // when at the mobile mode ? 0 : set dynamically based on the mouse position
 			div.style.zIndex = 9999999999999;
