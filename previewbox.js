@@ -790,7 +790,8 @@ var previewbox = (function () {
 
 			
 if (_dbg.isDBG()) { // To Del
-	s.aTitle = 3; 
+	s.aTitle = 3;
+	_previewbox.style.width = "100%";
 	_previewbox.style.height = "auto";
 	_previewbox.style.overflow = "auto";
 	return;
