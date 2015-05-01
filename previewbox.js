@@ -802,6 +802,10 @@ if (_dbg.isDBG()) { // To Del
 		_previewbox.style.position = "absolute";
 		_previewbox.style.padding = "0";
 		_previewbox.style.borderWidth = "0";
+		_previewbox.iframe.style.padding = _settings.get("boxPadding") / 2;
+		_previewbox.iframe.style.borderWidth = _CONST.mobileBoxBorderW + 'px';
+		_previewbox.iframe.style.borderStyle = "solid";
+		_previewbox.iframe.style.borderColor = _settings.get("boxBorderColor");
 		window.scrollTo(scrollX, 0);
 		//_previewbox.style.backgroundImage = "";
 		//_previewbox.style.height = "auto";
@@ -966,8 +970,9 @@ if (_dbg.isDBG()) { // To Del
 							+'</div>'
 						    +'<iframe id="previewbox-iframe" frameborder="0" sandbox="allow-scripts"'
 							+        'style="border: none;'
-							+				'position:relative;'
-							+				'z-index:3;'
+							+				'box-sizing: border-box;'
+							+				'position: relative;'
+							+				'z-index: 3;'
 											// width/height: when at the mobile mode ? 100% : computed dynamically
 											// top: when at the mobile mode ? the same as #previewbox-mobileBar height : 0
 							+				'"'
