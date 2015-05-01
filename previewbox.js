@@ -794,7 +794,9 @@ if (_dbg.isDBG()) { // To Del
 	_previewbox.style.height = "100%";
 	_previewbox.style.position = "fixed";
 	_previewbox.style.overflow = "visible";	
-	_previewbox.mobileBar.targetLink.innerHTML = 2;
+	_previewbox.iframe.style.position = "absolute";
+	
+	_previewbox.mobileBar.targetLink.innerHTML = 3;
 	
 			
 	_addEvent(_previewbox.iframe, "load", function () {
