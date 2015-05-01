@@ -3,10 +3,28 @@
 # Date: TBD
 
 # Items:
-	> Open to set customized preview hint txt
+	> Support the preview in mobile platform
+	> Open setting customized preview hint txt
 	> Open more changable styles
 	
-# Future improvements in consideration:
+# Supported Platforms:
+	> FF 37.0.2, FF Android 37.0.2
+	> Chrome 42.0.2311.90, Chrome iOS 42.0.2272.56, Chrome Android 42.0.2311.111
+	> Safari iOS 8.1.1
+	> Opera Mini iOS 10.0.1.90729, Opera Android 29.0.1809.91837, Opera Mini Android 8.0.1807.91281
+	> Dolphin iOS 8.6.0, Dolphin Android 11.4.9
+	> Android 4.4 browser
+	> IE8/9/10/11 (mobile support starts from 10)
+	
+# Remark:
+	> The mobile bar UI glitch: Dolphin Android, Android 4.4
+	> The mobile preview box bottom UI glitch: FF Android
+	> The mobile bar close btn UI broken: Opera Mini Android
+	> The mobile iframe scroll issue: Safari iOS, Chrome iOS, Opera Mini iOS, Opera Mini Android, Dolphin iOS
+	> The mobile iframe old content clearing delay issue: Dolphin iOS
+	> The mobile preview box slow open and misleading address bar: Opera Mini Android
+	
+# Future Improvements in Consideration:
 	> Support mobile and tablet scenario
 	> Add the method to destory one preview anchor to make the <a> element return back to an normal <a>
 	> Open more styles for change and customization
@@ -20,7 +38,7 @@
 # Items:
 	> Refactor to dynamically set styles
 	
-# Future improvements in consideration:
+# Future Improvements in Consideration:
 	> Support mobile and tablet scenario
 	> Add the method to destory one preview anchor to make the <a> element return back to an normal <a>
 	> Open more styles for change and customization, for example:
@@ -35,7 +53,7 @@
 # Items:
 	> FIX: IE still lets the preview box disappear while the mouse is hovering on the right or bottom scroll bar of the box.
 	
-# Future improvements in consideration:
+# Future Improvements in Consideration:
 	> Support mobile and tablet scenario
 	> Add the method to destory one preview anchor to make the <a> element return back to an normal <a>
 	> Open more styles for change and customization, for example:
@@ -54,7 +72,7 @@
 	> Buggy: IE8/9/10. It seems that even though the mouse is still on the preview box's area, IE still lets the preview box disappear while the mouse is hovering on the right or bottom scroll bar of the box.
 	         Need more investigation on IE.
 	
-# Future improvements in consideration:
+# Future Improvements in Consideration:
 	> Support mobile and tablet scenario
 	> Add the method to destory one preview anchor to make the <a> element return back to an normal <a>
 	> Open more styles for change and customization, for example:

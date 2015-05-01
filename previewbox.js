@@ -5,7 +5,6 @@
  *******************************************************************************************/
 var previewbox = (function () {
 // TODO :
-// * Fix jumping to another page in the mobile mode
 // * Fix scrolling issue on iOS
 // * Fine-tune the mobileBar position
 // * Fine-tune styles in the mobile mode
