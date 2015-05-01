@@ -796,6 +796,12 @@ if (_dbg.isDBG()) { // To Del
 	_previewbox.style.overflow = "visible";	
 	_previewbox.mobileBar.targetLink.innerHTML = 7;
 	
+			
+	_addEvent(_previewbox.iframe, "load", function () {
+		_previewbox.style.backgroundImage = "";
+		_previewbox.style.height = "auto";
+	});
+	
 	return;
 } 		
 			
