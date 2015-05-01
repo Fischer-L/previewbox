@@ -794,12 +794,12 @@ if (_dbg.isDBG()) { // To Del
 	_previewbox.style.height = "100%";
 	_previewbox.style.position = "absolute";
 	_previewbox.style.overflow = "visible";	
-	_previewbox.mobileBar.targetLink.innerHTML = 8;
+	_previewbox.mobileBar.targetLink.innerHTML = 9;
 	
 			
 	_addEvent(_previewbox.iframe, "load", function () {
-		_previewbox.style.backgroundImage = "";
-		_previewbox.style.height = "auto";
+		//_previewbox.style.backgroundImage = "";
+		//_previewbox.style.height = "auto";
 	});
 	
 	return;
