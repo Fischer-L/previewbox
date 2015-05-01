@@ -790,13 +790,11 @@ var previewbox = (function () {
 		
 if (_dbg.isDBG()) { // To Del
 			
-	_previewbox.mobileBar.targetLink.innerHTML = 6;
 	_previewbox.style.width = "100%";
 	_previewbox.style.height = "100%";
 	_previewbox.style.position = "absolute";
-	_previewbox.style.overflow = "visible";
-	
-	_showBox(previewAnchor);
+	_previewbox.style.overflow = "visible";	
+	_previewbox.mobileBar.targetLink.innerHTML = 7;
 	
 	return;
 } 		
