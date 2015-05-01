@@ -4,10 +4,7 @@
  * Copyright (C) 2013 Fischer Liu | MIT license | https://github.com/Fischer-L/previewbox
  *******************************************************************************************/
 var previewbox = (function () {
-// TODO :
-// * Fix scrolling issue on iOS
-// * Fine-tune the mobileBar position
-// * Fine-tune styles in the mobile mode
+// TODO : Fix issues
 	"use strict";
 /*	Properties:
 		[ Private ]
@@ -843,7 +840,7 @@ var previewbox = (function () {
 			div.style.backgroundPosition = "center center";
 			div.style.backgroundRepeat = "no-repeat";
 			// div.style.overflow = when at the mobile mode ? hidden : visible;
-			div.style.position = "fixed";
+			div.style.position = "absolute";
 			div.style.top = _CONST.boxHiddenPosTop; // when at the mobile mode ? 0 : set dynamically based on the mouse position
 			div.style.left = _CONST.boxHiddenPosLeft; // when at the mobile mode ? 0 : set dynamically based on the mouse position
 			div.style.zIndex = 9999999999999;
