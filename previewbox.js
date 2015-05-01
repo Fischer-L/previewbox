@@ -779,21 +779,6 @@ var previewbox = (function () {
 				<ELM> previewAnchor = the <a> element currently being the preview target
 		*/
 		_showBoxMobile = function (previewAnchor) {
-		
-if (_dbg.isDBG()) { // To Del
-			_setStyle();
-			_setStyleMobile(previewAnchor);
-			
-	s.aTitle = 7;
-	_previewbox.style.width = "100%";
-	_previewbox.style.height = "100%";
-	_previewbox.iframe.style.height = "auto";
-	_previewbox.style.overflow = "auto";
-	
-	_showBox(previewAnchor);
-	
-	return;
-} 		
 			
 			_setStyle();
 			_setStyleMobile(previewAnchor);
@@ -802,6 +787,18 @@ if (_dbg.isDBG()) { // To Del
 			_previewbox.style.height = "0%";
 			
 			_showBox(previewAnchor);
+		
+if (_dbg.isDBG()) { // To Del
+			
+	_previewbox.mobileBar.targetLink.innerHTML = 5;
+	_previewbox.style.width = "100%";
+	_previewbox.style.height = "auto";
+	_previewbox.style.overflow = "auto";
+	
+	_showBox(previewAnchor);
+	
+	return;
+} 		
 			
 			// Delay for the open transition
 			setTimeout(function () {
