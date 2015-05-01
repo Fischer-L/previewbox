@@ -792,14 +792,14 @@ if (_dbg.isDBG()) { // To Del
 			
 	_previewbox.style.width = "100%";
 	_previewbox.style.height = "100%";
-	_previewbox.style.position = "fixed";
+	_previewbox.style.position = "absolute";
 	_previewbox.style.overflow = "visible";	
-	_previewbox.iframe.style.position = "absolute";
 	
-	_previewbox.mobileBar.targetLink.innerHTML = 3;
+	_previewbox.mobileBar.targetLink.innerHTML = 4;
 	
 			
 	_addEvent(_previewbox.iframe, "load", function () {
+		_previewbox.style.position = "fixed";
 		_previewbox.style.padding = "0";
 		_previewbox.style.borderWidth = "0";
 		//_previewbox.style.backgroundImage = "";
