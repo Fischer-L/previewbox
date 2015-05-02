@@ -610,7 +610,6 @@ var previewbox = (function () {
 			
 			_previewbox.iframe.style.padding =
 			_previewbox.iframe.style.borderWidth = "0";
-			_previewbox.iframe.style.borderTopWidth = "";
 		},
 		/*	Arg:
 				<NUM> mousePosX = the horizontal coordinate (according to the client area) of the mouse pointer
@@ -858,7 +857,9 @@ var previewbox = (function () {
 		
 if (_dbg.isDBG()) { // To Del
 				
-	_previewbox.mobileBar.targetLink.innerHTML = 7;
+	_previewbox.iframe.style.borderColor = "red";
+	
+	_previewbox.mobileBar.targetLink.innerHTML = 8;
 	
 }
 				
