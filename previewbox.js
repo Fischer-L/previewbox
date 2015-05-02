@@ -592,10 +592,10 @@ var previewbox = (function () {
 			_previewbox.style.color =
 			_previewbox.style.borderColor =
 			_previewbox.hintxt.style.color =
+			_previewbox.iframe.style.borderColor =
 			_previewbox.pointer.style.borderColor =
 			_previewbox.mobileBar.style.backgroundColor = _settings.get("boxBorderColor");
 			
-			_previewbox.style.borderTopWidth = "";
 			_previewbox.style.position = "fixed";
 			_previewbox.style.backgroundImage = _settings.get("loadingImg");
 			
@@ -609,10 +609,8 @@ var previewbox = (function () {
 			_previewbox.hintxt.style.right = "";			
 			
 			_previewbox.iframe.style.padding =
-			_previewbox.iframe.style.borderWidth =
-			_previewbox.iframe.style.borderTopWidth = "0";
-			_previewbox.iframe.style.borderStyle = 
-			_previewbox.iframe.style.borderColor = "";
+			_previewbox.iframe.style.borderWidth = "0";
+			_previewbox.iframe.style.borderTopWidth = "";
 		},
 		/*	Arg:
 				<NUM> mousePosX = the horizontal coordinate (according to the client area) of the mouse pointer
@@ -763,10 +761,9 @@ var previewbox = (function () {
 			_previewbox.style.left = "0";
 			_previewbox.style.width =
 			_previewbox.style.height = "100%";
+			_previewbox.style.padding = "0";
+			_previewbox.style.borderWidth = "0";
 			_previewbox.style.boxSizing = "border-box";
-			_previewbox.style.padding = v.bPadding + "px";
-			_previewbox.style.borderWidth = _CONST.mobileBoxBorderW + 'px';
-			_previewbox.style.borderTopWidth = "0";
 			_previewbox.style.transition = "";
 			
 			_previewbox.hintxt.style.right = "6px";
@@ -780,6 +777,9 @@ var previewbox = (function () {
 			_previewbox.iframe.style.width =
 			_previewbox.iframe.style.height = "100%";
 			_previewbox.iframe.style.top = v.ifTop + "px";			
+			_previewbox.iframe.style.padding = v.bPadding + "px";					
+			_previewbox.iframe.style.borderWidth = _CONST.mobileBoxBorderW + 'px';					
+			_previewbox.iframe.style.borderTopWidth = "0";
 		},
 		/*	Arg:
 				<ELM> previewAnchor = the <a> element currently being the preview target
@@ -824,20 +824,21 @@ var previewbox = (function () {
 				// -- Hack for the scrolling issue -- //
 					
 					// Replace the outer border & padding with the iframe's
-					_previewbox.iframe.style.padding = _previewbox.style.padding;
-					_previewbox.style.padding = "0";
-					
-					_previewbox.iframe.style.borderWidth = _previewbox.style.borderWidth;
-					_previewbox.style.borderWidth = "0";
-					
-					_previewbox.iframe.style.borderTopWidth = _previewbox.style.borderTopWidth;
-					_previewbox.style.borderTopWidth = "0";
-					
-					_previewbox.iframe.style.borderStyle = _previewbox.style.borderStyle;
-					_previewbox.style.borderStyle = "";
-					
-					_previewbox.iframe.style.borderColor = _previewbox.style.borderColor;
-					_previewbox.style.borderColor = "";
+					//_previewbox.iframe.style.padding = _previewbox.style.padding;
+					//_previewbox.style.padding = "0";
+					//
+					//_previewbox.iframe.style.borderWidth = _previewbox.style.borderWidth;
+					//_previewbox.style.borderWidth = "0";
+					//
+					//_previewbox.iframe.style.borderTopWidth = _previewbox.style.borderTopWidth;
+					//_previewbox.style.borderTopWidth = "0";
+					//
+					//_previewbox.iframe.style.borderStyle = _previewbox.style.borderStyle;
+					//_previewbox.style.borderStyle = "";
+					//
+					//_previewbox.iframe.style.borderColor = _previewbox.style.borderColor;
+					//_previewbox.style.borderColor = "";
+					// To Del
 				
 				_addEvent(_previewbox.iframe, "load", function () {
 					
@@ -857,7 +858,7 @@ var previewbox = (function () {
 		
 if (_dbg.isDBG()) { // To Del
 				
-	_previewbox.mobileBar.targetLink.innerHTML = 9;
+	_previewbox.mobileBar.targetLink.innerHTML = 7;
 	
 }
 				
@@ -909,8 +910,8 @@ if (_dbg.isDBG()) { // To Del
 			div.style.display = "none";
 			// div.style.width = div.style.height = when at the mobile mode ? 100% : computed dynamically
 			// div.style.transition =  when at the mobile mode ? transition on width & height : null
-			// div.style.padding = when at the mobile mode ? set to 50% in the PC mode dynamically : set dynamically
-			// div.style.borderWidth = set dynamically based on the mobile & PC mode
+			// div.style.padding = when at the mobile mode ? 0: set dynamically
+			// div.style.borderWidth = when at the mobile mode ? 0 : set dynamically
 			div.style.borderStyle = 'solid';
 			// div.style.borderColor = set dynamically
 			// div.style.borderTopWidth = when at the mobile mode ? 0 : borderWidth;
@@ -1025,10 +1026,13 @@ if (_dbg.isDBG()) { // To Del
 							+'</div>'
 						    +'<iframe id="previewbox-iframe" frameborder="0" sandbox="allow-scripts"'
 							+        'style="box-sizing: border-box;'
+											// padding : when at the PC mode ? 0 : set to 50% in the PC mode dynamically 
+							+				'border-style: ' + div.style.borderStyle
+											// border-color: set dynamically the same as in the PC mode
+											// border-width = when at the PC mode ? 0 : set dynamically
 							+				'position: relative;'
 							+				'z-index: 3;'
 											// width/height: when at the mobile mode ? 100% : computed 
-											// padding & border: when at the PC mode ? none : Need some hacks
 											// top: when at the mobile mode ? the same as #previewbox-mobileBar height : 0
 							+				'"'
 							+'></iframe>';
