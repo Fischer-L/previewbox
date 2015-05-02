@@ -847,7 +847,7 @@ var previewbox = (function () {
 					// we have to make sure that the window is scrolled to the top.
 					// And backup the original scroll position for returning later.					
 					_settings.set("origScrollYInMobile",  scrollY);					
-					window.scrollTo(scrollX, 0);
+					//window.scrollTo(scrollX, 0);
 					
 				}, tSec * 1000);
 				
