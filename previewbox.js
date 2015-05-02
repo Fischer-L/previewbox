@@ -853,6 +853,8 @@ var previewbox = (function () {
 		
 if (_dbg.isDBG()) { // To Del
 		
+	alert("AAA");
+		
 	_previewbox.mobileBar.targetLink.innerHTML = 6;
 	
 	return;
