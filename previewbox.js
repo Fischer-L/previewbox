@@ -165,6 +165,9 @@ var previewbox = (function () {
 				},
 				isNonEmptySTR : function (v) {
 					return __commonTypeChker.isSTR(v) && v;
+				},
+				isBOOL : function (v) {
+					return v === true || v === false;
 				}
 			},
 			/*	Properties:
@@ -178,10 +181,10 @@ var previewbox = (function () {
 			__value = {
 				
 				// <NUM> The original window.scrollY backup. This is for the mobile transition animation's use
-				"origScrollYInMobile" : 0,
+				"origScrollYInMobile" : [ 0, __commonTypeChker.isPositiveNUM ],
 				
 				// <BOO> If true, no effects would take place in the mobile mode. You may need this for a better performance on mobile device.
-				"noEffectsInMobile" : false,
+				"noEffectsInMobile" : [ false, __commonTypeChker.isBOOL ],
 				
 				// -- Style settings -- //
 				
@@ -842,12 +845,7 @@ var previewbox = (function () {
 				});				
 				
 				setTimeout(function () {
-		
-if (_dbg.isDBG()) { // To Del
-		
-	alert("BBB");
 				
-}
 					// Since the position will change from "fixed" to "absolute",
 					// we have to make sure that the window is scrolled to the top.
 					// And backup the original scroll position for returning later.					
