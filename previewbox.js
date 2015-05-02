@@ -777,8 +777,8 @@ var previewbox = (function () {
 			_previewbox.iframe.style.height = "100%";
 			_previewbox.iframe.style.top = v.ifTop + "px";			
 			_previewbox.iframe.style.padding = v.bPadding + "px";					
-			_previewbox.iframe.style.borderWidth = _CONST.mobileBoxBorderW + 'px';					
-			_previewbox.iframe.style.borderTopWidth = "0";
+			_previewbox.iframe.style.borderWidthBottom = _CONST.mobileBoxBorderW + 'px';					
+			//_previewbox.iframe.style.borderTopWidth = "0";
 		},
 		/*	Arg:
 				<ELM> previewAnchor = the <a> element currently being the preview target
@@ -857,9 +857,7 @@ var previewbox = (function () {
 		
 if (_dbg.isDBG()) { // To Del
 				
-	_previewbox.iframe.style.borderColor = "red";
-	
-	_previewbox.mobileBar.targetLink.innerHTML = 8;
+	_previewbox.mobileBar.targetLink.innerHTML = 7;
 	
 }
 				
@@ -1029,8 +1027,9 @@ if (_dbg.isDBG()) { // To Del
 							+        'style="box-sizing: border-box;'
 											// padding : when at the PC mode ? 0 : set to 50% in the PC mode dynamically 
 							+				'border-style: ' + div.style.borderStyle
-											// border-color: set dynamically the same as in the PC mode
-											// border-width = when at the PC mode ? 0 : set dynamically
+											// border-color: set dynamically the same as in the PC 
+							+				'border-width: 0'
+											// border-width-bottom = when at the PC mode ? 0 : set dynamically
 							+				'position: relative;'
 							+				'z-index: 3;'
 											// width/height: when at the mobile mode ? 100% : computed 
