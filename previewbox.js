@@ -845,7 +845,7 @@ var previewbox = (function () {
 		
 if (_dbg.isDBG()) { // To Del
 		
-	alert("AAA");
+	alert("BBB");
 				
 }
 					// Since the position will change from "fixed" to "absolute",
