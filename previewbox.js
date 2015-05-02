@@ -852,13 +852,12 @@ var previewbox = (function () {
 					_settings.set("origScrollYInMobile",  scrollY);					
 					window.scrollTo(scrollX, 0);
 					
-				}, 500);
+				}, tSec * 1000);
 		
 if (_dbg.isDBG()) { // To Del
 				
-	_previewbox.mobileBar.targetLink.innerHTML = 6;
+	_previewbox.mobileBar.targetLink.innerHTML = 7;
 	
-	return;
 }
 				
 				// !-- Hack for the scrolling issue -- //
