@@ -864,7 +864,7 @@ var previewbox = (function () {
 				}, 50);
 			}
 			
-			
+if (_dbg.isDBG()) _previewbox.mobileBar.targetLink.innerHTML = 1;
 			
 		},
 		/*
