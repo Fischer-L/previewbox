@@ -847,7 +847,9 @@ var previewbox = (function () {
 					// we have to make sure that the window is scrolled to the top.
 					// And backup the original scroll position for returning later.					
 					_settings.set("origScrollYInMobile",  scrollY);					
-					//window.scrollTo(scrollX, 0);
+					window.scrollTo(scrollX, 0);
+					
+					_previewbox.style.display = "none";
 					
 				}, tSec * 1000);
 				
@@ -864,7 +866,7 @@ var previewbox = (function () {
 				}, 50);
 			}
 			
-if (_dbg.isDBG()) _previewbox.mobileBar.targetLink.innerHTML = 4;
+if (_dbg.isDBG()) _previewbox.mobileBar.targetLink.innerHTML = 5;
 			
 		},
 		/*
