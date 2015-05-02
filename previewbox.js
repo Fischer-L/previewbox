@@ -590,10 +590,12 @@ var previewbox = (function () {
 			// Let's reset styles
 			
 			_previewbox.style.color =
+			_previewbox.style.borderColor =
 			_previewbox.hintxt.style.color =
 			_previewbox.pointer.style.borderColor =
 			_previewbox.mobileBar.style.backgroundColor = _settings.get("boxBorderColor");
 			
+			_previewbox.style.borderTopWidth = "";
 			_previewbox.style.position = "fixed";
 			_previewbox.style.backgroundImage = _settings.get("loadingImg");
 			
@@ -669,8 +671,7 @@ var previewbox = (function () {
 			_previewbox.style.top = v.bTop + "px";
 			_previewbox.style.boxSize = "content-box";
 			_previewbox.style.padding = v.bPadding + "px";
-			_previewbox.style.borderWidth = 	
-			_previewbox.style.borderTopWidth = v.bBorderW + 'px';
+			_previewbox.style.borderWidth = v.bBorderW + 'px';
 			
 			_previewbox.iframe.style.top = "0";
 			_previewbox.iframe.style.width = v.ifW + "px";
@@ -856,7 +857,7 @@ var previewbox = (function () {
 		
 if (_dbg.isDBG()) { // To Del
 				
-	_previewbox.mobileBar.targetLink.innerHTML = 7;
+	_previewbox.mobileBar.targetLink.innerHTML = 8;
 	
 }
 				
