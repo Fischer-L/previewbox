@@ -822,7 +822,7 @@ var previewbox = (function () {
 				_addEvent(_previewbox.iframe, "load", function () {
 					
 					// For some mobile browsers, it must be "absolute" to be able to scroll the iframe
-					//_previewbox.style.position = "absolute";
+					_previewbox.style.position = "absolute";
 					
 					// Replace the outer border & padding with the iframe's
 					_previewbox.iframe.style.padding = _previewbox.style.padding;
@@ -864,7 +864,7 @@ var previewbox = (function () {
 				}, 50);
 			}
 			
-if (_dbg.isDBG()) _previewbox.mobileBar.targetLink.innerHTML = 3;
+if (_dbg.isDBG()) _previewbox.mobileBar.targetLink.innerHTML = 4;
 			
 		},
 		/*
