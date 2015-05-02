@@ -801,15 +801,6 @@ var previewbox = (function () {
 			_setStyle();
 			_setStyleMobile(previewAnchor);
 		
-if (_dbg.isDBG()) { // To Del
-	
-	window.scrollTo(scrollX, 0);
-	
-	_previewbox.mobileBar.targetLink.innerHTML = 6;
-	
-	return;
-}
-		
 			if (!_settings.get("noEffectsInMobile")) {
 				
 				var tSec = _CONST.mobileTransitionSec;
@@ -858,7 +849,14 @@ if (_dbg.isDBG()) { // To Del
 					_settings.set("origScrollYInMobile",  scrollY);					
 					window.scrollTo(scrollX, 0);
 					
-				}, tSec * 1000);
+				}, 500);
+		
+if (_dbg.isDBG()) { // To Del
+		
+	_previewbox.mobileBar.targetLink.innerHTML = 6;
+	
+	return;
+}
 				
 				// !-- Hack for the scrolling issue -- //
 				
