@@ -19,7 +19,7 @@
 # Remark:
 	> The mobile bar UI glitch: Dolphin Android, Android 4.4
 	> The mobile preview box bottom UI glitch: FF Android
-	> The mobile bar close btn UI broken: Opera Mini Android
+	> The mobile bar UI broken: Opera Mini Android
 	> The mobile iframe scroll issue: Safari iOS, Chrome iOS, Opera Mini iOS, Opera Mini Android, Dolphin iOS
 	> The mobile iframe old content clearing delay issue: Dolphin iOS
 	> The mobile preview box slow open and misleading address bar: Opera Mini Android

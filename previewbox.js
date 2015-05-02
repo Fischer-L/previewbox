@@ -777,8 +777,7 @@ var previewbox = (function () {
 			_previewbox.iframe.style.height = "100%";
 			_previewbox.iframe.style.top = v.ifTop + "px";			
 			_previewbox.iframe.style.padding = v.bPadding + "px";					
-			_previewbox.iframe.style.borderBottomWidth = _CONST.mobileBoxBorderW + 'px';					
-			//_previewbox.iframe.style.borderTopWidth = "0";
+			_previewbox.iframe.style.borderBottomWidth = _CONST.mobileBoxBorderW + 'px';
 		},
 		/*	Arg:
 				<ELM> previewAnchor = the <a> element currently being the preview target
@@ -819,49 +818,6 @@ var previewbox = (function () {
 				_previewbox.style.width =
 				_previewbox.style.height = "0%";				
 				_previewbox.style.transition = "width " + tSec + "s, height " + tSec + "s";
-			
-				// -- Hack for the scrolling issue -- //
-					
-					// Replace the outer border & padding with the iframe's
-					//_previewbox.iframe.style.padding = _previewbox.style.padding;
-					//_previewbox.style.padding = "0";
-					//
-					//_previewbox.iframe.style.borderWidth = _previewbox.style.borderWidth;
-					//_previewbox.style.borderWidth = "0";
-					//
-					//_previewbox.iframe.style.borderTopWidth = _previewbox.style.borderTopWidth;
-					//_previewbox.style.borderTopWidth = "0";
-					//
-					//_previewbox.iframe.style.borderStyle = _previewbox.style.borderStyle;
-					//_previewbox.style.borderStyle = "";
-					//
-					//_previewbox.iframe.style.borderColor = _previewbox.style.borderColor;
-					//_previewbox.style.borderColor = "";
-					// To Del
-				
-				_addEvent(_previewbox.iframe, "load", function () {
-					
-					// For some mobile browsers, it must be "absolute" to be able to scroll the iframe
-					_previewbox.style.position = "absolute";
-				});				
-				
-				setTimeout(function () {
-				
-					// Since the position will change from "fixed" to "absolute",
-					// we have to make sure that the window is scrolled to the top.
-					// And backup the original scroll position for returning later.					
-					_settings.set("origScrollYInMobile",  scrollY);					
-					window.scrollTo(scrollX, 0);
-					
-				}, tSec * 1000);
-		
-if (_dbg.isDBG()) { // To Del
-				
-	_previewbox.mobileBar.targetLink.innerHTML = 6;
-	
-}
-				
-				// !-- Hack for the scrolling issue -- //
 				
 				_showBox(previewAnchor);
 						
@@ -873,6 +829,25 @@ if (_dbg.isDBG()) { // To Del
 					
 				}, 50);
 			}
+			
+			// -- Hack for the scrolling issue -- //
+			
+			_addEvent(_previewbox.iframe, "load", function () {	// TODO: Use a better central control			
+				// For some mobile browsers, it must be "absolute" to be able to scroll the iframe
+				_previewbox.style.position = "absolute";
+			});				
+			
+			setTimeout(function () {
+			
+				// Since the position will change from "fixed" to "absolute",
+				// we have to make sure that the window is scrolled to the top.
+				// And backup the original scroll position for returning later.					
+				_settings.set("origScrollYInMobile",  scrollY);					
+				window.scrollTo(scrollX, 0);
+				
+			}, tSec * 1000);
+			
+			// !-- Hack for the scrolling issue -- //
 
 		},
 		/*
@@ -893,6 +868,7 @@ if (_dbg.isDBG()) { // To Del
 			
 			// Delay for the close transition
 			setTimeout(function () {
+// TODO: hide box
 				_hideBox();
 			}, 450);			
 		},
@@ -1030,6 +1006,8 @@ if (_dbg.isDBG()) { // To Del
 											// border-color: set dynamically the same as in the PC 
 							+				'border-width: 0'
 											// border-bottom-width: when at the PC mode ? 0 : set dynamically
+											//                      Why we only draw the bottom border but not like a a border frame in the PC mode is 
+											//                      because the left border color gets stange in all mobile browsers
 							+				'position: relative;'
 							+				'z-index: 3;'
 											// width/height: when at the mobile mode ? 100% : computed 
