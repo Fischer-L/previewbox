@@ -800,7 +800,16 @@ var previewbox = (function () {
 			
 			_setStyle();
 			_setStyleMobile(previewAnchor);
-			
+		
+if (_dbg.isDBG()) { // To Del
+	
+	window.scrollTo(scrollX, 0);
+	
+	_previewbox.mobileBar.targetLink.innerHTML = 6;
+	
+	return;
+}
+		
 			if (!_settings.get("noEffectsInMobile")) {
 				
 				var tSec = _CONST.mobileTransitionSec;
@@ -849,8 +858,6 @@ var previewbox = (function () {
 					_settings.set("origScrollYInMobile",  scrollY);					
 					window.scrollTo(scrollX, 0);
 					
-					_previewbox.style.display = "none";
-					
 				}, tSec * 1000);
 				
 				// !-- Hack for the scrolling issue -- //
@@ -865,9 +872,7 @@ var previewbox = (function () {
 					
 				}, 50);
 			}
-			
-if (_dbg.isDBG()) _previewbox.mobileBar.targetLink.innerHTML = 5;
-			
+
 		},
 		/*
 		*/
