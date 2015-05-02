@@ -609,7 +609,7 @@ var previewbox = (function () {
 			_previewbox.hintxt.style.right = "";			
 			
 			_previewbox.iframe.style.padding =
-			_previewbox.iframe.style.borderWidth = "0";
+			_previewbox.iframe.style.borderBottomWidth = "0";
 		},
 		/*	Arg:
 				<NUM> mousePosX = the horizontal coordinate (according to the client area) of the mouse pointer
@@ -777,7 +777,7 @@ var previewbox = (function () {
 			_previewbox.iframe.style.height = "100%";
 			_previewbox.iframe.style.top = v.ifTop + "px";			
 			_previewbox.iframe.style.padding = v.bPadding + "px";					
-			_previewbox.iframe.style.borderWidthBottom = _CONST.mobileBoxBorderW + 'px';					
+			_previewbox.iframe.style.borderBottomWidth = _CONST.mobileBoxBorderW + 'px';					
 			//_previewbox.iframe.style.borderTopWidth = "0";
 		},
 		/*	Arg:
@@ -857,7 +857,7 @@ var previewbox = (function () {
 		
 if (_dbg.isDBG()) { // To Del
 				
-	_previewbox.mobileBar.targetLink.innerHTML = 7;
+	_previewbox.mobileBar.targetLink.innerHTML = 6;
 	
 }
 				
@@ -1029,7 +1029,7 @@ if (_dbg.isDBG()) { // To Del
 							+				'border-style: ' + div.style.borderStyle
 											// border-color: set dynamically the same as in the PC 
 							+				'border-width: 0'
-											// border-width-bottom = when at the PC mode ? 0 : set dynamically
+											// border-bottom-width: when at the PC mode ? 0 : set dynamically
 							+				'position: relative;'
 							+				'z-index: 3;'
 											// width/height: when at the mobile mode ? 100% : computed 
