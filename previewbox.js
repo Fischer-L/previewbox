@@ -842,7 +842,12 @@ var previewbox = (function () {
 				});				
 				
 				setTimeout(function () {
+		
+if (_dbg.isDBG()) { // To Del
+		
+	alert("AAA");
 				
+}
 					// Since the position will change from "fixed" to "absolute",
 					// we have to make sure that the window is scrolled to the top.
 					// And backup the original scroll position for returning later.					
@@ -852,9 +857,7 @@ var previewbox = (function () {
 				}, 500);
 		
 if (_dbg.isDBG()) { // To Del
-		
-	alert("AAA");
-		
+				
 	_previewbox.mobileBar.targetLink.innerHTML = 6;
 	
 	return;
