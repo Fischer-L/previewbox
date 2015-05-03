@@ -826,11 +826,11 @@ var previewbox = (function () {
 			
 			_previewbox.style.width =
 			_previewbox.style.height = "0%";	
-		
+
 			if (!_settings.get("noEffectsInMobile")) {
-				
+
 				tSec = _CONST.mobileTransitionSec;
-			
+
 				if (_dbg.isDBG()) {
 						
 					if (isNaN(tSec) || typeof tSec != "number" || tSec < 0) {	
@@ -979,7 +979,7 @@ var previewbox = (function () {
 							+	        'background-color: #fff;'
 							+	   	    'position: absolute;'
 							+			'z-index: 4;'
-										// top: when at the mobile mode ? the #previewbox-mobileBar height + some adjustments : 0
+										// top: when at the mobile mode ? the #previewbox-mobileBar height + some adjustments if necessary : 0
 										// left: when at the mobile mode ? null : 6px
 										// right: when at the mobile mode ? 6px : null
 										// color: set dynamically the same as the previewbox's border color
@@ -1005,7 +1005,7 @@ var previewbox = (function () {
 							+'>'
 							+		'<a id="previewbox-mobileBar-targetLink"'
 							+		   'style="width: 66%;'
-							+		          'margin-left:' + _CONST.mobileBoxBorderW + 'px;'
+							+		          'margin-left:' + (_CONST.mobileBoxBorderW + 6) + 'px;'
 							+                 'display: inline-block;'
 							+                 'overflow: hidden;'
 							+                 'text-overflow: ellipsis;'
@@ -1024,7 +1024,7 @@ var previewbox = (function () {
 							+			 '"'
 							+		'>'
 							+				'<div style="border-style: solid;'
-							+							'border-width: 1.6px '+ (_CONST.mobileBarH * 0.22) + 'px;'
+							+							'border-width: 1px '+ (_CONST.mobileBarH * 0.18) + 'px;'
 							+							'border-radius: 2px;'
 							+							'position: absolute;'
 							+							'top: 50%;'
@@ -1034,7 +1034,7 @@ var previewbox = (function () {
 							+							'"'
 							+				'></div>'
 							+				'<div style="border-style: solid;'
-							+							'border-width: 1.6px '+ (_CONST.mobileBarH * 0.22) + 'px;'
+							+							'border-width: 1px '+ (_CONST.mobileBarH * 0.18) + 'px;'
 							+							'border-radius: 2px;'
 							+							'position: absolute;'
 							+							'top: 50%;'
@@ -1057,7 +1057,7 @@ var previewbox = (function () {
 							+				'position: relative;'
 							+				'z-index: 3;'
 											// width/height: when at the mobile mode ? 100% : computed 
-											// top: when at the mobile mode ? the #previewbox-mobileBar height + some adjustments : 0
+											// top: when at the mobile mode ? the #previewbox-mobileBar height + some adjustments if necessary : 0
 							+				'"'
 							+'></iframe>';
 							
