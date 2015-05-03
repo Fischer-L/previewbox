@@ -737,7 +737,7 @@ var previewbox = (function () {
 				<ELM> previewAnchor = the <a> element currently being the preview target
 		*/
 		_setStyleMobile = function (previewAnchor) {
-			
+
 			var v = {
 					hTop : _CONST.mobileBarH + 1, // plus 1 for some adjustment
 					ifTop : _CONST.mobileBarH,// + 100, // plus 1 for some adjustment
