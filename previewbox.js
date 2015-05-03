@@ -720,7 +720,7 @@ var previewbox = (function () {
 			
 			var v = {
 					hTop : _CONST.mobileBarH + 1, // plus 1 for some adjustment
-					ifTop : _CONST.mobileBarH + 10, // plus 1 for some adjustment
+					ifTop : _CONST.mobileBarH + 100, // plus 1 for some adjustment
 					bPadding : _settings.get("boxPadding") / 2,
 					fontSize : _CONST.mobileBoxFontSize
 				},
