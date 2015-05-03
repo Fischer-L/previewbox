@@ -40,7 +40,6 @@ var previewbox = (function () {
 		> _prepPreview : Prepare(Initial) the preview box
 		[ Public ]
 		> setSandbox : Set the value of the sandbox on the preview iframe. This will overwrite the original value.
-		> rmSandbox : Remvoe the sandbox on the preview iframe
 		> changeStyles : To change the preview box's style
 		> regisAnchor : To convert one <a> element into the preview anchor and register it so the preview happens when moving mouse on the <a>
 		> regisBySearching : To search all the <a> elements with the CSS class, "previewbox-anchor", in the docuemnt and register the findings
@@ -260,8 +259,8 @@ var previewbox = (function () {
 					<STR> key = the key of setting
 					<*> value = the value to set
 				Return:
-					@ OK: true
-					@ NG: false
+					@ OK: <*> the new value
+					@ NG: undefined
 			*/
 			s.set = function (key, value) {
 				
@@ -278,7 +277,7 @@ var previewbox = (function () {
 					
 						__value[key][0] = value;
 						
-						return true;
+						return value;
 						
 					} else {						
 						_dbg.warn(_dbg.formaStr("Setting <{0}> with invalid value <{1}>", key, value));
@@ -288,7 +287,7 @@ var previewbox = (function () {
 					_dbg.warn(_dbg.formaStr("Setting unknown setting with key <{0}>", key));
 				}
 				
-				return false;
+				return undefined;
 			}
 			
 			return s;
@@ -550,6 +549,8 @@ var previewbox = (function () {
 		*/
 		_getMobileBarTargetLinkTitle = function (root) {
 		
+			var title = "";
+			
 			try {
 				
 				// The traversing depth; Max is 3.
@@ -571,7 +572,7 @@ var previewbox = (function () {
 								
 								v = v.nodeValue.trim();
 								
-								if (v) return v;
+								if (v) title += v + " ";
 								
 							break;
 							
@@ -585,7 +586,7 @@ var previewbox = (function () {
 									
 									v = _getMobileBarTargetLinkTitle(v, depth - 1);
 
-									if (v) return v;
+									if (v) title += v;
 								}
 								
 							break;
@@ -598,7 +599,7 @@ var previewbox = (function () {
 				_dbg.error("Error on _getMobileBarTargetLinkTitle --> " + e);				
 			}
 			
-			return null;
+			return title ? title : null;
 		},
 		/*
 		*/
@@ -1234,11 +1235,6 @@ var previewbox = (function () {
 				}
 				return _previewbox.iframe.getAttribute("sandbox");
 			},
-			/*
-			*/
-			rmSandbox : function () {
-				_previewbox.iframe.removeAttribute("sandbox");
-			},
 			/*	Arg:
 					<OBJ> styles = The setable styles.
 								   Each property inside is one new style being set.
@@ -1246,7 +1242,7 @@ var previewbox = (function () {
 								   Refer to this::_settings for the setable styles.
 				Return:
 					@ NG: null
-					@ OK: one object carrying the changed style values.
+					@ OK: <OBJ> one object carrying the changed style values.
 					      For exemple, suppoe set the "#previewbox/border-color" as #777 and the "#previewbox/padding" as 50, when setting is done,
 						  it will return {
 							"#previewbox/padding" : 50,
@@ -1263,12 +1259,9 @@ var previewbox = (function () {
 						
 						if (styles.hasOwnProperty(prop) && typeof prop != "function") {
 							
-							if (_settings.set(prop, styles[prop])) {
-								
-								if (!(newStyles instanceof Object)) newStyles = {};
-								
-								newStyles[prop] = styles[prop];
-							}
+							if (!(newStyles instanceof Object)) newStyles = {};
+							
+							newStyles[prop] = _settings.set(prop, styles[prop]);
 						}
 					}
 				}
@@ -1311,6 +1304,11 @@ var previewbox = (function () {
 					_mkPreviewAnchor(as[i]);
 				}
 				return (as.length > 0) ? as : null;
+			},
+			rmSandbox : function () {
+				// This is obsolete.
+				// We discourage no setting sandbox so remove this method.
+				_dbg.error("Call the obsolete rmSandbox method. Never remove sandbox unless you very know what you are doing!");
 			}
 		};
 

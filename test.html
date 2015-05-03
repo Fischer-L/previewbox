@@ -8,6 +8,9 @@
 	<link rel="stylesheet" media="all" href="lib/mocha.css">
 	
 	<style>
+		.clearBoth {
+			clear : both;
+		}
 		#anchorsHolder {
 			width : 90%;
 			margin : 0 auto;
@@ -24,11 +27,22 @@
 			margin : 4%;
 			float : left;
 		}
+		.testxtBlock {
+			display : none;
+		}
 		@media (max-width : 768px) {
 		
 			.aWrp {
 				width : 90%;
 				margin : 5%;
+			}
+			
+			.testxtBlock {
+				width : 100px;
+				height : 500px;
+				border : 2px dotted red;
+				color : red;
+				display : block;
 			}
 		}
 	</style>
@@ -42,11 +56,14 @@
 			<a class="test previewbox-anchor" href="http://css-tricks.com/blurry-transparent-header-effect-ios7-css/">Blurry Transparent Header Effect from iOS7 in CSS</a>
 		</div>
 		<div class="aWrp">
-			<a class="test previewbox-anchor" href="//edition.cnn.com/SHOWBIZ/">CNN Entertainment</a>
+			<a class="test previewbox-anchor" href="http://edition.cnn.com/SHOWBIZ/"><strong>CNN Entertainment</strong></a>
 		</div>
 		<div class="aWrp">
 			<a class="test" href="//www.reddit.com/">reddit</a>
 		</div>
+		
+		<div class="clearBoth"></div>
+		
 		<div class="aWrp">
 			<a class="test" href="https://nyse.nyx.com/">NewYour Stock Exchange</a>
 		</div>
@@ -54,15 +71,20 @@
 			<a class="test" href="//www.imdb.com/">IMDb</a>
 		</div>
 		<div class="aWrp">
-			<a class="test" href="http://www.html5rocks.com/en/">HTML5 Rocks</a>
+			<a class="test" href="http://www.html5rocks.com/en/">HTML5 <em>Rocks</em></a>
 		</div>
+		
+		<div class="clearBoth"></div>
+		
 		<div class="aWrp">
 			<a class="test" href="//www.weather.com/">National and Local Weather</a>
+		</div>
+		<div class="aWrp testxtBlock">
+			This is a test text block...
 		</div>
 		<div class="aWrp">
 			<a class="test previewbox-anchor" href="http://techcrunch.com/2013/10/05/the-potential-and-pitfalls-of-twitters-mobile-business/">The Potential And Pitfalls Of Twitter’s Mobile Business</a>
 		</div>
-<div class="aWrp" style="width:100px; height:500px; border: 0px solid red; border-bottom-width: 5px;"></div>
 		<div class="aWrp">
 			<a class="test" href="http://en.wikipedia.org/wiki/Main_Page">Welcome to Wikipedia</a>
 		</div>
