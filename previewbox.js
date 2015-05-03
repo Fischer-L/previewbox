@@ -21,6 +21,7 @@ var previewbox = (function () {
 		> _isMouseOut : Check if the mouse is on the previewbox or the anchor <a> element or not
 		> _isHref : Check for the valid href value
 		> _getAppropriateMode : Get the mode appropriate for the current user scenario
+		> _getDocScroll : Get the document's scrolling info
 		> _getWindowSize : Get the client window width and height
 		> _getIFrameSizePC : Get the iframe width and height for the PC mode's use
 		> _getPreviewBoxSizePC : Get the preview box total width and height(including the border and padding)  for the PC mode's use
@@ -423,6 +424,25 @@ var previewbox = (function () {
 			
 			// Judge by the window width
 			return (_getWindowSize().windowWidth > _CONST.modeMobileW) ? _CONST.modePC : _CONST.modeMobile;
+		},
+		/*	Retunr:
+				<OBJ> {
+					<NUM> top, left: the document's scrolling top/left info
+				}
+		*/		
+		_getDocScroll = function () {
+		
+			var top = 0, left = 0;
+			
+			if (document.documentElement && document.documentElement.scrollTop) {
+				top = document.documentElement.scrollTop;
+				left = document.documentElement.scrollLeft;
+			} else if (document.body) {
+				top = document.body.scrollTop;
+				left = document.body.scrollLeft;
+			}
+			
+			return { top : top, left : left };
 		},
 		/*	Return: {
 				windowWidth : the width of the client window in px. If unable to find, then -1.
@@ -846,13 +866,16 @@ var previewbox = (function () {
 				_rmEvent(_previewbox.iframe, posIFrameAbs);
 			});				
 			
-			setTimeout(function () {
-			
-				// Since the position will change from "fixed" to "absolute",
-				// we have to make sure that the window is scrolled to the top.
-				// And backup the original scroll position for returning later.					
-				_previewbox.setAttribute("data-origScrollYInMobile",  scrollY);					
-				window.scrollTo(scrollX, 0);
+			setTimeout(function () {			
+			// Since the position will change from "fixed" to "absolute",
+			// we have to make sure that the window is scrolled to the top.
+			// And backup the original scroll position for returning later.	
+				
+				var scroll = _getDocScroll();
+				
+				_previewbox.setAttribute("data-origScrollTopInMobile",  scroll.top);	
+				
+				window.scrollTo(scroll.left, 0);
 				
 			}, tSec * 1000);
 			
@@ -875,7 +898,7 @@ var previewbox = (function () {
 			
 			// -- Hack for the scrolling issue -- //
 			
-			window.scrollTo(scrollX, _previewbox.getAttribute("data-origScrollYInMobile"));
+			window.scrollTo(scroll.left, _previewbox.getAttribute("data-origScrollTopInMobile"));
 			
 			// !-- Hack for the scrolling issue -- //
 			
