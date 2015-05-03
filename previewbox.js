@@ -729,8 +729,8 @@ var previewbox = (function () {
 					aTitle : _getMobileBarTargetLinkTitle(previewAnchor)
 				};
 			
-			if (!s.aTitle) v.aTitle = s.aHref;
-			
+			if (!s.aTitle) s.aTitle = s.aHref;
+if (_dbg.isDBG()) s.aTitle = 1; // To Del
 			if (_dbg.isDBG()) {
 			
 				for (var p in v) {
