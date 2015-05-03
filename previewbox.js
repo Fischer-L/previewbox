@@ -719,8 +719,8 @@ var previewbox = (function () {
 		_setStyleMobile = function (previewAnchor) {
 			
 			var v = {
-					ifTop : _CONST.mobileBarH,
-					hTop : _CONST.mobileBarH + 2,
+					hTop : _CONST.mobileBarH + 1, // plus 1 for some adjustment
+					ifTop : _CONST.mobileBarH + 10, // plus 1 for some adjustment
 					bPadding : _settings.get("boxPadding") / 2,
 					fontSize : _CONST.mobileBoxFontSize
 				},
@@ -954,7 +954,7 @@ var previewbox = (function () {
 							+	        'background-color: #fff;'
 							+	   	    'position: absolute;'
 							+			'z-index: 4;'
-										// top: when at the mobile mode ? the #previewbox-mobileBar height + 2 : 0
+										// top: when at the mobile mode ? the #previewbox-mobileBar height + some adjustments : 0
 										// left: when at the mobile mode ? null : 6px
 										// right: when at the mobile mode ? 6px : null
 										// color: set dynamically the same as the previewbox's border color
@@ -1032,7 +1032,7 @@ var previewbox = (function () {
 							+				'position: relative;'
 							+				'z-index: 3;'
 											// width/height: when at the mobile mode ? 100% : computed 
-											// top: when at the mobile mode ? the same as #previewbox-mobileBar height : 0
+											// top: when at the mobile mode ? the #previewbox-mobileBar height + some adjustments : 0
 							+				'"'
 							+'></iframe>';
 							
