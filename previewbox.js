@@ -730,7 +730,7 @@ var previewbox = (function () {
 				};
 			
 			if (!s.aTitle) s.aTitle = s.aHref;
-if (_dbg.isDBG()) s.aTitle = 1; // To Del
+			
 			if (_dbg.isDBG()) {
 			
 				for (var p in v) {
