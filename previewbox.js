@@ -720,7 +720,7 @@ var previewbox = (function () {
 			
 			var v = {
 					hTop : _CONST.mobileBarH + 1, // plus 1 for some adjustment
-					ifTop : _CONST.mobileBarH + 100, // plus 1 for some adjustment
+					ifTop : _CONST.mobileBarH;// + 100, // plus 1 for some adjustment
 					bPadding : _settings.get("boxPadding") / 2,
 					fontSize : _CONST.mobileBoxFontSize
 				},
@@ -1023,9 +1023,9 @@ if (_dbg.isDBG()) s.aTitle = 1; // To Del
 						    +'<iframe id="previewbox-iframe" frameborder="0" sandbox="allow-scripts"'
 							+        'style="box-sizing: border-box;'
 											// padding : when at the PC mode ? 0 : set to 50% in the PC mode dynamically 
-							+				'border-style: ' + div.style.borderStyle
+							+				'border-style: ' + div.style.borderStyle + ';'
 											// border-color: set dynamically the same as in the PC 
-							+				'border-width: 0'
+							+				'border-width: 0;'
 											// border-bottom-width: when at the PC mode ? 0 : set dynamically
 											//                      Why we only draw the bottom border but not like a a border frame in the PC mode is 
 											//                      because the left border color gets stange in all mobile browsers
