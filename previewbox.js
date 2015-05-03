@@ -178,10 +178,7 @@ var previewbox = (function () {
 						- The 1st element is the setting value
 						- The 2nd element is the type checking function which shall implement this::__inf_TypeChker
 			*/
-			__value = {
-				
-				// <NUM> The original window.scrollY backup. This is for the mobile transition animation's use
-				"origScrollYInMobile" : [ 0, __commonTypeChker.isPositiveNUM ],
+			__value = {				
 				
 				// <BOO> If true, no effects would take place in the mobile mode. You may need this for a better performance on mobile device.
 				"noEffectsInMobile" : [ false, __commonTypeChker.isBOOL ],
@@ -416,12 +413,13 @@ var previewbox = (function () {
 				> _CONST.modePC or _CONST.modeMobile
 		*/
 		_getAppropriateMode = function () { if (_dbg.isDBG() && 1) return _CONST.modeMobile; // To Del
-
-			if (_getIEVersion() <= 9) return _CONST.modePC;
 			
 			// Judge by the userAgent string
 			var ua = window.navigator.userAgent.toLowerCase();				
 			if (ua.search(/mobile|windows phone/) >= 0) return _CONST.modeMobile;
+			
+			// Bye the legacy IEs
+			if (_getIEVersion() <= 9) return _CONST.modePC;
 			
 			// Judge by the window width
 			return (_getWindowSize().windowWidth > _CONST.modeMobileW) ? _CONST.modePC : _CONST.modeMobile;
@@ -466,8 +464,7 @@ var previewbox = (function () {
 				return {
 					windowWidth : document.body.clientWidth, 
 					windowHeight : document.body.clientHeight
-				};
-				
+				};				
 			}
 			
 			return {
@@ -596,6 +593,7 @@ var previewbox = (function () {
 			_previewbox.pointer.style.borderColor =
 			_previewbox.mobileBar.style.backgroundColor = _settings.get("boxBorderColor");
 			
+			_previewbox.style.transition = "";
 			_previewbox.style.position = "fixed";
 			_previewbox.style.backgroundImage = _settings.get("loadingImg");
 			
@@ -664,7 +662,9 @@ var previewbox = (function () {
 				}
 			}
 			
-			_previewbox.style.transition = "";
+			
+			_previewbox.style.width =
+			_previewbox.style.height = "";
 			_previewbox.style.top = v.bTop + "px";
 			_previewbox.style.boxSize = "content-box";
 			_previewbox.style.padding = v.bPadding + "px";
@@ -763,7 +763,6 @@ var previewbox = (function () {
 			_previewbox.style.padding = "0";
 			_previewbox.style.borderWidth = "0";
 			_previewbox.style.boxSizing = "border-box";
-			_previewbox.style.transition = "";
 			
 			_previewbox.hintxt.style.right = "6px";
 			_previewbox.hintxt.style.top = v.hTop + "px";
@@ -800,12 +799,17 @@ var previewbox = (function () {
 		*/
 		_showBoxMobile = function (previewAnchor) {
 			
+			var tSec;
+			
 			_setStyle();
 			_setStyleMobile(previewAnchor);
+			
+			_previewbox.style.width =
+			_previewbox.style.height = "0%";	
 		
 			if (!_settings.get("noEffectsInMobile")) {
 				
-				var tSec = _CONST.mobileTransitionSec;
+				tSec = _CONST.mobileTransitionSec;
 			
 				if (_dbg.isDBG()) {
 						
@@ -813,28 +817,33 @@ var previewbox = (function () {
 					
 						_dbg.error(_dbg.formaStr("illegal value for mobile transition sec = {1}", tSec));
 					}
-				}
-			
-				_previewbox.style.width =
-				_previewbox.style.height = "0%";				
-				_previewbox.style.transition = "width " + tSec + "s, height " + tSec + "s";
-				
-				_showBox(previewAnchor);
+				}			
+				_previewbox.style.transition = "width " + tSec + "s, height " + tSec + "s";				
 						
 				// Delay for the open transition
 				setTimeout(function () {
 				
 					_previewbox.style.width =
-					_previewbox.style.height = "100%";
+					_previewbox.style.height = "100%";			
 					
-				}, 50);
-			}
+				}, 80);
 			
+			} else {				
+				
+				tSec = 80/1000;
+				
+				_previewbox.style.width =
+				_previewbox.style.height = "100%";				
+			}
+				
 			// -- Hack for the scrolling issue -- //
 			
-			_addEvent(_previewbox.iframe, "load", function () {	// TODO: Use a better central control			
+			_addEvent(_previewbox.iframe, "load", function posIFrameAbs() {
+			
 				// For some mobile browsers, it must be "absolute" to be able to scroll the iframe
 				_previewbox.style.position = "absolute";
+				
+				_rmEvent(_previewbox.iframe, posIFrameAbs);
 			});				
 			
 			setTimeout(function () {
@@ -842,13 +851,14 @@ var previewbox = (function () {
 				// Since the position will change from "fixed" to "absolute",
 				// we have to make sure that the window is scrolled to the top.
 				// And backup the original scroll position for returning later.					
-				_settings.set("origScrollYInMobile",  scrollY);					
+				_previewbox.setAttribute("data-origScrollYInMobile",  scrollY);					
 				window.scrollTo(scrollX, 0);
 				
 			}, tSec * 1000);
 			
 			// !-- Hack for the scrolling issue -- //
-
+			
+			_showBox(previewAnchor);
 		},
 		/*
 		*/
@@ -863,14 +873,25 @@ var previewbox = (function () {
 		*/
 		_hideBoxMobile = function () {
 			
-			_previewbox.style.width =
-			_previewbox.style.height = "0%";			
+			// -- Hack for the scrolling issue -- //
 			
-			// Delay for the close transition
-			setTimeout(function () {
-// TODO: hide box
+			window.scrollTo(scrollX, _previewbox.getAttribute("data-origScrollYInMobile"));
+			
+			// !-- Hack for the scrolling issue -- //
+			
+			if (!_settings.get("noEffectsInMobile")) {
+			
+				_previewbox.style.width =
+				_previewbox.style.height = "0%";
+			
+				// Delay for the close transition
+				setTimeout(function () {
+					_hideBox();
+				}, _CONST.mobileTransitionSec * 1000 - 70);
+				
+			} else {				
 				_hideBox();
-			}, 450);			
+			}
 		},
 		/*	Arg:
 				<ELM> div = one <div> element to be converted into the preview box
