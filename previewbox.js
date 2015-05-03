@@ -786,7 +786,7 @@ var previewbox = (function () {
 			
 			_previewbox.hintxt.style.right = "6px";
 			_previewbox.hintxt.style.top = v.hTop + "px";
-			_previewbox.hintxt.style.fontSize = v.fontSize + 'px';
+			_previewbox.hintxt.style.fontSize = (v.fontSize * 1.1) + 'px';
 			
 			_previewbox.mobileBar.style.display = "block";
 			_previewbox.mobileBar.targetLink.href = s.aHref;
