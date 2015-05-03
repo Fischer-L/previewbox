@@ -180,8 +180,15 @@ var previewbox = (function () {
 			*/
 			__value = {				
 				
-				// <BOO> If true, no effects would take place in the mobile mode. You may need this for a better performance on mobile device.
-				"noEffectsInMobile" : [ false, __commonTypeChker.isBOOL ],
+				// -- Config settings -- //
+					
+					// <BOO> If true, always go for the mobile mode disregarding any conditions.
+					"alwaysMobileMode" : [ false, __commonTypeChker.isBOOL ],
+					
+					// <BOO> If true, no effects would take place in the mobile mode. You may need this for a better performance on mobile device.
+					"noEffectsInMobile" : [ false, __commonTypeChker.isBOOL ],
+				
+				// !-- Config settings -- //
 				
 				// -- Style settings -- //
 				
@@ -190,7 +197,7 @@ var previewbox = (function () {
 					// <STR> The preview box's box-shadow CSS value
 					"#previewbox/box-shadow" : [ "", __commonTypeChker.isSTR ],
 					// <STR> The CSS color of the preview box' border
-					"#previewbox/border-color" : [ "#333", __commonTypeChker.isNonEmptySTR ],
+					"#previewbox/border-color" : [ "#555", __commonTypeChker.isNonEmptySTR ],
 					// <STR> The backgournd image(in valid CSS) used when loading	
 					"#previewbox/background-image" : [ "", __commonTypeChker.isSTR ],
 					
@@ -249,7 +256,7 @@ var previewbox = (function () {
 				
 				} else {
 					
-					_dbg.warn(_dbg.formaStr("Getting unknown setting with key <{0}>", key));
+					_dbg.error(_dbg.formaStr("Getting unknown setting with key <{0}>", key));
 					
 					return null;
 				}
@@ -412,7 +419,9 @@ var previewbox = (function () {
 		/*	Return:
 				> _CONST.modePC or _CONST.modeMobile
 		*/
-		_getAppropriateMode = function () { if (_dbg.isDBG() && 1) return _CONST.modeMobile; // To Del
+		_getAppropriateMode = function () {
+			
+			 if (_settings.get("alwaysMobileMode")) return _CONST.modeMobile;
 			
 			// Judge by the userAgent string
 			var ua = window.navigator.userAgent.toLowerCase();				
@@ -501,8 +510,8 @@ var previewbox = (function () {
 			
 			if (c.windowWidth > 0 || c.windowHeight > 0) {
 				
-				var iframeW = _settings.get("iframeW"),
-					iframeH = _settings.get("iframeH");
+				var iframeW = _settings.get("#previewbox-iframe/width"),
+					iframeH = _settings.get("#previewbox-iframe/height");
 				
 				c.iMaxW = c.windowWidth * _CONST.iframeMaxPercW;
 				c.iMinW = c.windowWidth * _CONST.iframeMinPercW;
@@ -534,7 +543,7 @@ var previewbox = (function () {
 		_getPreviewBoxSizePC = function () {
 			
 			var i = _getIFrameSizePC(),
-			    j = _CONST.boxBorderW * 2 + _settings.get("boxPadding") * 2;
+			    j = _CONST.boxBorderW * 2 + _settings.get("#previewbox/padding") * 2;
 			
 			return {
 				width : i.iframeW + j,
@@ -612,11 +621,11 @@ var previewbox = (function () {
 			_previewbox.hintxt.style.color =
 			_previewbox.iframe.style.borderColor =
 			_previewbox.pointer.style.borderColor =
-			_previewbox.mobileBar.style.backgroundColor = _settings.get("boxBorderColor");
+			_previewbox.mobileBar.style.backgroundColor = _settings.get("#previewbox/border-color");
 			
 			_previewbox.style.transition = "";
 			_previewbox.style.position = "fixed";
-			_previewbox.style.backgroundImage = _settings.get("loadingImg");
+			_previewbox.style.backgroundImage = _settings.get("#previewbox/background-image");
 			
 			_previewbox.hintxt.innerHTML = _settings.get("#previewbox-hintxt/value");
 			
@@ -646,13 +655,13 @@ var previewbox = (function () {
 					bW : bSize.width,
 					bH : bSize.height,
 					bBorderW : _CONST.boxBorderW,
-					bPadding : _settings.get("boxPadding"),
+					bPadding : _settings.get("#previewbox/padding"),
 					ifW : ifSize.iframeW,
 					ifH : ifSize.iframeH,
 					fontSize : _CONST.boxFontSize,
 					pWidth : 2 * _CONST.ptrBorderLeftW,
 					pHozPos : -(2 * _CONST.ptrBorderLeftW + _CONST.boxBorderW - 1),
-					pTopMin : _CONST.box2PtrPadding - _CONST.boxBorderW - _settings.get("boxPadding"),
+					pTopMin : _CONST.box2PtrPadding - _CONST.boxBorderW - _settings.get("#previewbox/padding"),
 					winW : (wSize.windowWidth > 0) ? wSize.windowWidth : _CONST.fallbackWindowW,
 					winH : (wSize.windowHeight > 0) ? wSize.windowHeight : _CONST.fallbackWindowH
 				};
@@ -664,7 +673,7 @@ var previewbox = (function () {
 				v.bTop = v.winH - v.bH - _CONST.windowPadding;
 			}
 			
-			v.pTop = mousePosY - v.bTop - _CONST.boxBorderW - _settings.get("boxPadding ")+ _CONST.ptrBorderTopW;
+			v.pTop = mousePosY - v.bTop - _CONST.boxBorderW - _settings.get("#previewbox/padding")+ _CONST.ptrBorderTopW;
 			if (v.pTop < v.pTopMin) {
 			// The preview box pointer's top value is less than the min limit
 				v.pTop = _CONST.box2PtrPadding;				
@@ -726,12 +735,13 @@ var previewbox = (function () {
 				_previewbox.pointer.style.borderRightColor = "transparent";
 			}
 			
-			if (_settings.get("boxShadow")) {
+			var shadow = _settings.get("#previewbox/box-shadow");
+			if (shadow && shadow !== _previewbox.style.boxShadow) {
 				_previewbox.style.oBoxShadow =
 				_previewbox.style.msBoxShadow =
 				_previewbox.style.mozBoxShadow =
 				_previewbox.style.webkitBoxShadow =
-				_previewbox.style.boxShadow = _settings.get("boxShadow");
+				_previewbox.style.boxShadow = shadow;
 			}
 		},
 		/*	Arg:
@@ -742,7 +752,7 @@ var previewbox = (function () {
 			var v = {
 					hTop : _CONST.mobileBarH + 1, // plus 1 for some adjustment
 					ifTop : _CONST.mobileBarH,// + 100, // plus 1 for some adjustment
-					bPadding : _settings.get("boxPadding") / 2,
+					bPadding : _settings.get("#previewbox/padding") / 2,
 					fontSize : _CONST.mobileBoxFontSize
 				},
 				s = {
@@ -784,6 +794,11 @@ var previewbox = (function () {
 			_previewbox.style.padding = "0";
 			_previewbox.style.borderWidth = "0";
 			_previewbox.style.boxSizing = "border-box";
+			_previewbox.style.oBoxShadow =
+			_previewbox.style.msBoxShadow =
+			_previewbox.style.mozBoxShadow =
+			_previewbox.style.webkitBoxShadow =
+			_previewbox.style.boxShadow = "";
 			
 			_previewbox.hintxt.style.right = "6px";
 			_previewbox.hintxt.style.top = v.hTop + "px";
@@ -995,7 +1010,7 @@ var previewbox = (function () {
 							+			 'margin: 0;'
 							+			 'line-height:' + _CONST.mobileBarH + 'px;'
 							+			 'font-size:' + _CONST.mobileBoxFontSize + 'px;'
-							+	         'color:' + _settings.get("mobileBarColor") + ";"
+							+	         'color:' + _settings.get("#previewbox-mobileBar/color") + ";"
 							+	   	     'position: absolute;'
 							+			 'z-index: 4;'
 							+	         'top: 0;'
@@ -1011,7 +1026,7 @@ var previewbox = (function () {
 							+                 'overflow: hidden;'
 							+                 'text-overflow: ellipsis;'
 							+                 'white-space: nowrap;'
-							+	              'color:' + _settings.get("mobileBarColor") + ";"
+							+	              'color:' + _settings.get("#previewbox-mobileBar/color") + ";"
 							+		   '"'
 							+		   'href="#"' // Set to the link being previewed
 							+		'>'
@@ -1225,15 +1240,48 @@ var previewbox = (function () {
 		
 		publicProps = {
 			/*	Arg:
-					> v = string, the sandbox value, refe to the HTML5 sandbox spec
+					<STR> v = the sandbox value, refe to the HTML5 sandbox spec
 				Return:
-					> The current sandbox value
+					<STR> The current sandbox value
 			*/
 			setSandbox : function (v) {
 				if (typeof v == "string") {
 					_previewbox.iframe.setAttribute("sandbox", v);
 				}
 				return _previewbox.iframe.getAttribute("sandbox");
+			},
+			/*	Arg:
+					<OBJ> params = The config params.
+								   Each property inside is one new config being set.
+								   Property name is config setting name. Property value is value.
+								   Refer to this::_settings for the configurable settings.
+				Return:
+					@ NG: null
+					@ OK: <OBJ> one object carrying the changed config values.
+					      For exemple, suppoe set the "alwaysMobileMode" as true and the "noEffectsInMobile" as true, when setting is done,
+						  it will return {
+							"alwaysMobileMode" : true,
+							"noEffectsInMobile" : "true"
+						  }
+			*/
+			config : function (params) {
+			
+				var newConfigs = null;
+				
+				if (params instanceof Object) {
+					
+					for (var prop in params) {
+						
+						if (params.hasOwnProperty(prop) && typeof prop != "function") {
+							
+							if (!(newConfigs instanceof Object)) newConfigs = {};
+							
+							newConfigs[prop] = _settings.set(prop, params[prop]);
+						}
+					}
+				}
+				
+				return newConfigs;
 			},
 			/*	Arg:
 					<OBJ> styles = The setable styles.
@@ -1250,23 +1298,10 @@ var previewbox = (function () {
 						  }
 			*/
 			changeStyles : function (styles) {
-			
-				var newStyles = null;
-				
-				if (styles instanceof Object) {
-					
-					for (var prop in styles) {
-						
-						if (styles.hasOwnProperty(prop) && typeof prop != "function") {
-							
-							if (!(newStyles instanceof Object)) newStyles = {};
-							
-							newStyles[prop] = _settings.set(prop, styles[prop]);
-						}
-					}
-				}
-				
-				return newStyles;
+				// p.s: 
+				// Currently setting styles is thru setting configs.
+				// However, maybe one day we would seperate them so use "config" to config and use "changeStyles" to change styles.
+				return this.config(styles);
 			},
 			/*	Arg:
 					> a = the <a> element to register

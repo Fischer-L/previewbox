@@ -135,8 +135,17 @@
 					}
 					
 					previewbox.changeStyles({
-						iframeW : 999999,
-						iframeH : 999999
+						"#previewbox/padding" : 14,
+						"#previewbox-iframe/width" : 1280,
+						"#previewbox-iframe/height" : 768,
+						"#previewbox/border-color" : "#555",
+						"#previewbox-hintxt/value" : "Preview",
+						"#previewbox/box-shadow" : "3px 3px 5px #888888"
+					});
+						
+					previewbox.config({
+						alwaysMobileMode : false,
+						noEffectsInMobile : false
 					});
 					
 					previewbox.setSandbox("allow-scripts");	
@@ -169,6 +178,28 @@
 					assert.greaterThanOrEqual(a.anchorType, 0, formaStr("assertAnchorRegistered but anchorType (actual < expected) => ({0} < {1})", a.anchorType, expAnchorType));
 				},
 				
+					
+				assertSettingsChanged = function(real, exp) {
+				
+					assert.notEqual(real, null, "The current setting is null");
+					
+					assert.isObject(real, "The returned setting is not obj");
+					
+					for (var p in real) {
+					
+						if (real.hasOwnProperty(p)) {							
+							assert.strictEqual(real[p], exp[p], formaStr("The {0} setting (actual, expected) = ({1}, {2})", p, real[p], exp[p]));
+						}
+					}
+					
+					for (var p in exp) {
+					
+						if (exp.hasOwnProperty(p)) {							
+							assert.strictEqual(real[p], exp[p], formaStr("The {0} setting (actual, expected) = ({1}, {2})", p, real[p], exp[p]));
+						}
+					}
+				},
+				
 				formaStr = function () { // From : http://jsfiddle.net/joquery/9KYaQ/
 				
 					// The string containing the format items (e.g. "{0}")
@@ -196,41 +227,51 @@
 						
 						assert.strictEqual(previewbox.setSandbox(v), v);						
 					});					
-				});				
-			
-				describe("#rmSandbox", function () {
+				});
+				
+				describe("#config", function () {
 					
-					it("should remove sandbox", function () {
+					it("should change configs", function () {
 						
-						previewbox.rmSandbox();
+						var newConfigs = {
+								alwaysMobileMode : true,
+								noEffectsInMobile : true
+							};
 						
-						assert.strictEqual(document.querySelector("#previewbox-iframe").getAttribute("sandbox"), null);
+						assertSettingsChanged(previewbox.config(newConfigs), newConfigs);
 					});					
 				});
-							
+				
 				describe("#changeStyles", function () {
 					
 					it("should change styles", function () {
 						
 						var newStyles = {
+								"#previewbox/padding" : 50,
+								"#previewbox/box-shadow" : "10px 10px 5px #888888;",
+								"#previewbox/border-color" : "#784000",
+								"#previewbox/background-image" : "url(./loading.gif)",
+								"#previewbox-hintxt/value" : "TEST_FOR_PREVIEW",
+								"#previewbox-iframe/width" : 900,
+								"#previewbox-iframe/height" : 1500,
+								"#previewbox-mobileBar/color" : "#325698"
+							};
+						
+						assertSettingsChanged(previewbox.changeStyles(newStyles), newStyles);
+					});
+					
+					it("should change styles with legacy alias keys", function () {
+						
+						var newStyles = {
 								iframeW : 300,
 								iframeH : 400,
-								boxBorderColor : "#555",
+								boxPadding : 99,
+								boxBorderColor : "#7643ad",
 								loadingImg : "url(./loading.gif)"
-							},
-							currentStys = previewbox.changeStyles(newStyles);
+							};
 							
-						assert.notEqual(currentStys, null, "The current style is null");
-						
-						assert.isObject(currentStys, "The returned style is not obj");
-						
-						for (var p in newStyles) {
-						
-							if (newStyles.hasOwnProperty(p)) {								
-								assert.strictEqual(currentStys[p], newStyles[p], formaStr("The {0} style (actual, expected) = ({1}, {2})", p, currentStys[p], newStyles[p]));
-							}
-						}						
-					});					
+						assertSettingsChanged(previewbox.changeStyles(newStyles), newStyles);				
+					});
 				});
 							
 				describe("#regisAnchor", function () {

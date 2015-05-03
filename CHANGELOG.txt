@@ -3,9 +3,10 @@
 # Date: TBD
 
 # Items:
-	> Support the preview in mobile platform
+	> Support the preview in mobile and tablet scenario
 	> Open setting customized preview hint txt
 	> Open more changable styles
+	> Remove the rmSandbox method because we discourage no setting sandbox.
 
 # Supported Platforms:
 	> FF 37.0.2, FF Android 37.0.2
@@ -24,9 +25,9 @@
 		- The mobile hack for the scrolling issue doesn't work: Opera Mini Android
 
 # Future Improvements in Consideration:
-	> Support mobile and tablet scenario
 	> Add the method to destory one preview anchor to make the <a> element return back to an normal <a>
 	> Open more styles for change and customization
+	> How to auto test the "alwayMobileMobe" and the "noEffectsInMobile" config
 		
 -----------------------------------------------
 
