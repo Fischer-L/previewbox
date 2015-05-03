@@ -442,7 +442,7 @@ var previewbox = (function () {
 				left = document.body.scrollLeft;
 			}
 			
-			return { top : top, left : left };
+			return { top : top, left : left };			
 		},
 		/*	Return: {
 				windowWidth : the width of the client window in px. If unable to find, then -1.
@@ -750,7 +750,7 @@ var previewbox = (function () {
 				};
 			
 			if (!s.aTitle) s.aTitle = s.aHref;
-			
+
 			if (_dbg.isDBG()) {
 			
 				for (var p in v) {
@@ -775,7 +775,7 @@ var previewbox = (function () {
 					}
 				}
 			}
-						
+
 			_previewbox.style.top =
 			_previewbox.style.left = "0";
 			_previewbox.style.width =
@@ -788,14 +788,14 @@ var previewbox = (function () {
 			_previewbox.hintxt.style.top = v.hTop + "px";
 			_previewbox.hintxt.style.fontSize = v.fontSize + 'px';
 			
-			_previewbox.mobileBar.style.display = "block";			
+			_previewbox.mobileBar.style.display = "block";
 			_previewbox.mobileBar.targetLink.href = s.aHref;
 			_previewbox.mobileBar.targetLink.innerHTML = s.aTitle;
 			
 			_previewbox.iframe.style.width =
 			_previewbox.iframe.style.height = "100%";
-			_previewbox.iframe.style.top = v.ifTop + "px";			
-			_previewbox.iframe.style.padding = v.bPadding + "px";					
+			_previewbox.iframe.style.top = v.ifTop + "px";	
+			_previewbox.iframe.style.padding = v.bPadding + "px";
 			_previewbox.iframe.style.borderBottomWidth = _CONST.mobileBoxBorderW + 'px';
 		},
 		/*	Arg:
@@ -897,6 +897,8 @@ var previewbox = (function () {
 		_hideBoxMobile = function () {
 			
 			// -- Hack for the scrolling issue -- //
+			
+			var scroll = _getDocScroll();
 			
 			window.scrollTo(scroll.left, _previewbox.getAttribute("data-origScrollTopInMobile"));
 			
