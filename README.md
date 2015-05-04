@@ -1,11 +1,13 @@
 ## What is previewbox ?
-The prviewbox is written in Javascript and lightweight and simple to use. It enables users to preview the content of a link in an sandboxed floating iFrame window while hovering mouse on the link.
+The prviewbox is written in Javascript and lightweight and simple to use. It enables users to preview the content of a link in an sandboxed floating iFrame window while hovering mouse(in the PC platform) or touch(in the mobile/tablet mode) on the link.
 As a result, the previewbox gives users a quick access to/look at the content of another page without clicking the href link to open another page in the current window or in an new window.
-Try it here => http://jsfiddle.net/Fischer/4AfaC/
+Try it here => http://fischer-l.github.io/previewbox/
 
 ## No need of any extra lib/framework
 The previewbox has no dependencies on other libs or frameworks.
 
+## Support the mobile/tablet use scenario
+Navigating between pages in the mobile/table by finger is quite bothersome. It takes several movements to switch between pages. This is why the previewbox not only supports the PC mode but also the mobile/tablet mode. The switching between the PC and the mobile/tablet mode is automatic. Just use the previewbox, it will adapt itself to different use scenraios on its own.
 
 ## How to use
 Simply add one more CSS class selector, "previewbox-anchor", to the HTML a element on which you want to enable the preview funciton.
@@ -86,10 +88,10 @@ The styles of the preview box is calculated so that it appears in the right shap
 
 
 ## Security
-- For the security reason, the X-Frame-Options header from the content to preview affects that the iframe loads the preview content. For more details, please visit https://developer.mozilla.org/en-US/docs/HTTP/X-Frame-Options
+- For the security reason, the X-Frame-Options header from the content previewed affects that the iframe loads the preview content. For more details, please visit https://developer.mozilla.org/en-US/docs/HTTP/X-Frame-Options
 
 - The HTML5 sandbox. The preview box's iframe utilizes the HTML5 sandbox feature to secure the iframe.
-  Please use previewbox.setSandbox and previewbox.rmSandbox to config the sandbox.
+  Please use previewbox.setSandbox to config the sandbox.
   If the browser does not support the HTML5 sandbox, it would have no sandbox security effect, however, the preview feature would still exists.
 
 - Watch out the preview content you are looking at. Please make sure the link is clean and safe. This is one of the basic and the most effective way to load outside contents securely.
