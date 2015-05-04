@@ -61,7 +61,7 @@ var previewbox = (function () {
 						@ Not Under the debug mode: false
 				*/
 				isDBG : function () {
-					return true;
+					return false;
 				},
 				/*	Arg:
 						<STR> msg = the warning message
