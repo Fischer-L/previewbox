@@ -8,6 +8,20 @@
 	<link rel="stylesheet" media="all" href="lib/mocha.css">
 	
 	<style>
+		.debuggingAlert {
+			width : 100%;
+			height : 1em;
+			padding : 6px;
+			line-height : 1em;
+			font-size : 16px;
+			font-weight : 900;
+			text-align : center;
+			color : #FF0000;
+			background : #FFCCCC;
+			position : fixed;
+			top : 0;
+			left : 0;
+		}
 		.clearBoth {
 			clear : both;
 		}
@@ -91,8 +105,8 @@
 	</div>
 	
 	<script src="previewbox.js"></script>
-	<script src="lib/mocha.js"></script>
-	<script src="lib/proclaim.js"></script>
+	<script src="testility/mocha.js"></script>
+	<script src="testility/proclaim.js"></script>
 	<script>
 		var mochaTest = {
 			
@@ -218,7 +232,21 @@
 				};
 			
 			describe("previewbox", function () {
-			
+				
+				it("is ready for the production release ?", function () {
+					
+					if (previewbox.isDBG()) {
+						
+						var div = document.createElement("div");
+						
+						div.className = "debuggingAlert";
+						
+						div.innerHTML = "In debugging mode, not reaty to release !!!";
+						
+						document.body.appendChild(div);
+					}					
+				});
+				
 				describe("#setSandbox", function () {
 					
 					it("should set sandbox", function () {

@@ -39,9 +39,11 @@ var previewbox = (function () {
 		> _prepPreview : Prepare(Initial) the preview box
 		[ Public ]
 		> setSandbox : Set the value of the sandbox on the preview iframe. This will overwrite the original value.
+		> config : To config the preview box
 		> changeStyles : To change the preview box's style
 		> regisAnchor : To convert one <a> element into the preview anchor and register it so the preview happens when moving mouse on the <a>
 		> regisBySearching : To search all the <a> elements with the CSS class, "previewbox-anchor", in the docuemnt and register the findings
+		> isDBG : Just for debugging & testing purpose
 */
 		var
 		/*	Methods:
@@ -1338,6 +1340,11 @@ var previewbox = (function () {
 					_mkPreviewAnchor(as[i]);
 				}
 				return (as.length > 0) ? as : null;
+			},
+			/*	Refer to this::_dbg.isDBG
+			*/
+			isDBG : function () {
+				return _dbg.isDBG();
 			},
 			rmSandbox : function () {
 				// This is obsolete.
