@@ -4,7 +4,6 @@
  * Copyright (C) 2013 Fischer Liu | MIT license | https://github.com/Fischer-L/previewbox
  *******************************************************************************************/
 var previewbox = (function () {
-// TODO : Fix issues
 	"use strict";
 /*	Properties:
 		[ Private ]
